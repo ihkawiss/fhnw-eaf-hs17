@@ -1,2 +1,2 @@
-# fhnw-eaf-hs17
-Enterprise Application Framework
+# EAF FHNW HS17
+Enterprise application framework module at FHNW HS 2017.
