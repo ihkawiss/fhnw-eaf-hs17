@@ -16,7 +16,7 @@ public class SpringIocApplication {
 		renderer.render();
 	}
 
-	private static BeanFactory getBeanFactory() {
+	public static BeanFactory getBeanFactory() {
 		XmlBeanFactory xmlFactory = new XmlBeanFactory(new ClassPathResource("spring/helloConfig.xml"));
 		return xmlFactory;
 	}

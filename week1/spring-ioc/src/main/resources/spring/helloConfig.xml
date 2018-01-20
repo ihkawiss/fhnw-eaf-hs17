@@ -5,6 +5,6 @@
 		<property name="messageProvider" ref="provider" />
 	</bean>
 	
-	<bean id="provider" class="ch.fhnw.edu.eaf.springioc.provider.WilkommenProvider" />
+	<bean id="provider" class="ch.fhnw.edu.eaf.springioc.provider.HelloWorldProvider" />
 
 </beans>
