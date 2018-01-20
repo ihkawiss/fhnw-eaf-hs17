@@ -16,7 +16,7 @@ import ch.fhnw.edu.rental.persistence.MovieRepository;
 import ch.fhnw.edu.rental.persistence.RentalRepository;
 import ch.fhnw.edu.rental.persistence.UserRepository;
 
-@Component
+//@Component - we use JDBC beans
 public class RentalRepositoryImpl implements RentalRepository {
 	private Map<Long, Rental> data = new HashMap<Long, Rental>();
 	private long nextId = 1;

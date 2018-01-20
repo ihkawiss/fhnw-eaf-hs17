@@ -13,7 +13,7 @@ import ch.fhnw.edu.rental.model.PriceCategoryNewRelease;
 import ch.fhnw.edu.rental.model.PriceCategoryRegular;
 import ch.fhnw.edu.rental.persistence.PriceCategoryRepository;
 
-@Component
+//@Component - we use JDBC beans
 public class PriceCategoryRepositoryImpl implements PriceCategoryRepository {
 	private Map<Long, PriceCategory> data = new HashMap<Long, PriceCategory>();
 	private long nextId = 1;

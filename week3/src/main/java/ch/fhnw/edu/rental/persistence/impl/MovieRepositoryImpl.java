@@ -13,7 +13,7 @@ import ch.fhnw.edu.rental.model.Movie;
 import ch.fhnw.edu.rental.persistence.MovieRepository;
 import ch.fhnw.edu.rental.persistence.PriceCategoryRepository;
 
-@Component
+//@Component - we use JDBC beans
 public class MovieRepositoryImpl implements MovieRepository {
 	private Map<Long, Movie> data = new HashMap<Long, Movie>();
 	private long nextId = 1;

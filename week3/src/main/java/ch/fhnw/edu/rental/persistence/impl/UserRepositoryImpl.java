@@ -13,7 +13,7 @@ import ch.fhnw.edu.rental.model.User;
 import ch.fhnw.edu.rental.persistence.RentalRepository;
 import ch.fhnw.edu.rental.persistence.UserRepository;
 
-@Component
+//@Component - we use JDBC beans
 public class UserRepositoryImpl implements UserRepository {
 	private Map<Long,User> data = new HashMap<Long,User>();
 	private long nextId = 1;
