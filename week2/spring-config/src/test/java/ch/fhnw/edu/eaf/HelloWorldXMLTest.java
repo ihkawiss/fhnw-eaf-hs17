@@ -13,7 +13,7 @@ import ch.fhnw.edu.eaf.app.domain.MessageProvider;
 import ch.fhnw.edu.eaf.app.domain.MessageRenderer;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(locations = {"/spring/helloConfigWithApplicationContextWithXmlFormat.xml"})
+@ContextConfiguration(locations = { "/spring/helloConfigWithApplicationContextWithXmlFormat.xml" })
 public class HelloWorldXMLTest {
 	
 	@Autowired
