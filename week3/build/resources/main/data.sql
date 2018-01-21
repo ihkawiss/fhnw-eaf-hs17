@@ -6,7 +6,7 @@ insert into movies (movie_id, movie_releasedate, movie_title, movie_rented, pric
 insert into movies (movie_id, movie_releasedate, movie_title, movie_rented, pricecategory_fk) values (2, '2017-07-20', 'Curchill', true, 1);
 insert into movies (movie_id, movie_releasedate, movie_title, movie_rented, pricecategory_fk) values (3, '2017-08-18', 'The Boss Baby', true, 2);
 insert into movies (movie_id, movie_releasedate, movie_title, movie_rented, pricecategory_fk) values (4, '2017-08-31', 'Pirates of the Caribean: Salazar''s Revenge', false, 3);
-insert into movies (movie_id, movie_releasedate, movie_title, movie_rented, pricecategory_fk) values (5, '2017-09-07', 'Die gÃ¶ttliche Ordnung', false, 3);
+insert into movies (movie_id, movie_releasedate, movie_title, movie_rented, pricecategory_fk) values (5, '2017-09-07', 'Die göttliche Ordnung', false, 3);
 
 insert into users (user_id, user_name, user_firstname, user_email) values (1, 'Keller', 'Marc', 'marc.keller@gmail.com');
 insert into users (user_id, user_name, user_firstname, user_email) values (2, 'Knecht', 'Werner', 'werner.knecht@gmail.com');

@@ -4,7 +4,7 @@ import java.util.Date;
 
 public class Movie {
 	private Long id;
-	
+
 	private final String title;
 	private final Date releaseDate;
 	private boolean rented;
@@ -19,7 +19,7 @@ public class Movie {
 		this.priceCategory = priceCategory;
 		this.rented = false;
 	}
-	
+
 	public PriceCategory getPriceCategory() {
 		return priceCategory;
 	}
@@ -31,11 +31,11 @@ public class Movie {
 	public String getTitle() {
 		return title;
 	}
-	
+
 	public Date getReleaseDate() {
 		return releaseDate;
 	}
-	
+
 	public boolean isRented() {
 		return rented;
 	}
@@ -51,5 +51,14 @@ public class Movie {
 	public void setId(Long id) {
 		this.id = id;
 	}
+	
+	@Override
+    public boolean equals(Object m) {
+
+	    if(m instanceof Movie)
+            return ((Movie)m).getTitle().equals(this.getTitle());
+        else
+            return super.equals(m);
+    }
 
 }
