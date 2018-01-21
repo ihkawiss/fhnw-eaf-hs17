@@ -18,56 +18,73 @@ import ch.fhnw.edu.rental.persistence.PriceCategoryRepository;
 public class JdbcPriceCategoryRepository implements PriceCategoryRepository {
 
 	@Autowired
-	private JdbcTemplate template;
-	
-	@Override
-	public PriceCategory findOne(Long id) {	
-		return template.queryForObject(
+    private JdbcTemplate template;
+
+    @Override
+    public PriceCategory findOne(Long id) {
+
+        return template.query(
                 "select * from pricecategories where PRICECATEGORY_ID = ?",
                 (rs, rowNum) -> createPriceCategory(rs),
                 id
-        );
-	}
+        ).get(0);
 
-	@Override
+    }
+
+    @Override
     public List<PriceCategory> findAll() {
+
         return template.query(
                 "select * from pricecategories",
                 (rs, rowNum) -> createPriceCategory(rs)
         );
+
     }
 
-	@Override
-	public PriceCategory save(PriceCategory t) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public PriceCategory save(PriceCategory priceCategory) {
+        // nothing to update here...
+        return priceCategory;
+    }
 
-	@Override
-	public void delete(Long id) {
-		// TODO Auto-generated method stub
+    @Override
+    public void delete(Long id) {
 
-	}
+        template.update(
+                "DELETE FROM pricecategories WHERE PRICECATEGORY_ID = ?",
+                id
+        );
 
-	@Override
-	public void delete(PriceCategory entity) {
-		// TODO Auto-generated method stub
+    }
 
-	}
+    @Override
+    public void delete(PriceCategory category) {
+        delete(category.getId());
+    }
 
-	@Override
-	public boolean exists(Long id) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public boolean exists(Long id) {
 
-	@Override
-	public long count() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-	
-	// helper to create instance of price category by a ResultSet
+        Long rowCount = template.queryForObject(
+                "SELECT COUNT(PRICECATEGORY_ID) FROM pricecategories WHERE PRICECATEGORY_ID = ?",
+                Long.class,
+                id
+        );
+
+        return rowCount == 1;
+    }
+
+    @Override
+    public long count() {
+
+        return template.queryForObject(
+                "SELECT COUNT(PRICECATEGORY_ID) FROM pricecategories",
+                Long.class
+        );
+
+    }
+
+    // helper to create instance of price category by a ResultSet
     private PriceCategory createPriceCategory(ResultSet rs) throws SQLException{
 
         String type = rs.getString("PRICECATEGORY_TYPE");

@@ -16,9 +16,9 @@ public class Rental {
 		if (user == null || movie == null || rentalDays <= 0) {
 			throw new NullPointerException("not all input parameters are set!" + user + "/" + movie + "/" + rentalDays);
 		}
-		if (movie.isRented()) {
+		/*if (movie.isRented()) {
 			throw new IllegalStateException("movie is already rented!");
-		}
+		}*/
 		this.user = user;
 		user.getRentals().add(this);
 		this.movie = movie;
