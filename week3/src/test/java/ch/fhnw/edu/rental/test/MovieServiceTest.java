@@ -108,7 +108,7 @@ public class MovieServiceTest {
 		assertEquals(5, movies.size());
 		
 		Movie movie = null;
-		String title = "Die gÃ¶ttliche Ordnung";
+		String title = "Die göttliche Ordnung";
 		for (Movie m : movies) {
 			if (m.getTitle().equals(title)) {
 				movie = m;
