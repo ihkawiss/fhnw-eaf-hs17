@@ -166,6 +166,7 @@ Folgend die wichtigsten Annotationen für Entitätsklassen im JPA/Hibernate Fram
 ```@Enumerated``` = definiert wie Enumeration persistiert werden soll (EnumType.ORDINAL oder EnumType.STRING)  
 ```@Lob``` = markiert Feld als large object, also BLOB Feld  
 ```@Transient``` = Markiert Feld das nicht persistiert werden soll
+```@Temporal``` = Markiert Datumsfelder, lässt Format/Präzision definieren
 
 Bei ```@Entity```, ```@Table``` sowie ```@Column``` ist der Name jeweils der UQN des annotierten Felds/Klasse.
 
