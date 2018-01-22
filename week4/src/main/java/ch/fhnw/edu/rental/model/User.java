@@ -8,12 +8,13 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
-@Table(name="USERS")
+@Table(name = "USERS")
 public class User {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "USER_ID")
@@ -21,17 +22,19 @@ public class User {
 
 	@Column(name = "USER_NAME")
 	private String lastName;
-	
+
 	@Column(name = "USER_FIRSTNAME")
 	private String firstName;
-	
+
 	@Column(name = "USER_EMAIL")
 	private String email;
+
+	@OneToMany(mappedBy = "user")
 	private List<Rental> rentals;
 
 	public User() {
 	}
-	
+
 	public User(String lastName, String firstName) {
 		this.lastName = lastName;
 		this.firstName = firstName;
