@@ -85,7 +85,10 @@ public class JdbcRentalRepository implements RentalRepository{
             );
 
             // find the inserted movie based on title and max id
-            Rental newRental = findAll().stream().max(Comparator.comparing(m -> m.getId())).get();
+            List<Rental> rentals = findAll();
+            Rental newRental = rentals.stream().max(Comparator.comparing(m -> m.getId())).get();
+            
+            return newRental;
 
         }
 
@@ -136,6 +139,9 @@ public class JdbcRentalRepository implements RentalRepository{
         User user = userRepo.findOne(rs.getLong("USER_ID"));
         Movie movie = movieRepo.findOne(rs.getLong("MOVIE_ID"));
 
-        return new Rental(user, movie, rs.getInt("RENTAL_RENTALDAYS"));
+        Rental r = new Rental(user, movie, rs.getInt("RENTAL_RENTALDAYS"));
+        r.setId(rs.getLong("RENTAL_ID"));
+        
+        return r;
     }
 }
