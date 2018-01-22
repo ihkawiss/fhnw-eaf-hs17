@@ -74,3 +74,44 @@ Folgend sind klassische Fehler im Umgang mit DI und Spring aufgelistet.
 4. Zirkuläre Abhängigkeit A > B > C > A
   - Setter Injection: Kein Problem, es werden erst alle Instanzen erzeugt, danach werden die Abhängigkeiten aufgelöst.
   - Constructor Injection: Führt zu einer Exception, Instanzen stehen bei Auflösung der Abhängigkeiten noch nicht zur Verfügung.
+
+## DAO Pattern
+Jegliche Datenbankzugriffe werden über DAO-Objekte, auch Repository genannt, abgewickelt. Jedes DAO ist für CRUD Operationen auf eine Entität zuständig. Transaktionen, Sessions oder Verbindungen werden nicht durch das DAO verwaltet. Mit dem DAO Pattern wird der Zugriff auf den Datenbank-Layer vom Rest der Anwendung (Business Logik) gekapselt. Ebenso wird die Wart- und Testbarkeit optimiert.
+
+### Template
+```Java
+public interface Repository<T, ID extends Serializable> {
+	T findOne(ID id);
+	List<T> findAll();
+	T save(T t);	// used for create and update
+	void delete(ID id);
+	void delete(T entity);
+	booleanexists(ID id);
+	long count();
+}
+```
+
+### Service Layer
+Core API durch welche andere Teile der Anwendung kommunizieren (Façade Pattern). Hier wird üblicherweise die Business Logik implementiert, welche dann über DAOs auf den Persistance-Layer zugreift.
+
+### Persistance
+#### Plain JDBC
+Die Implementierung eines DAOs ist mittels JDBC höchst umständlich. In jedem DAO müssen Verbindung und Exceptions verwaltet sowie eine Menge an Boiler-Plate Code geschrieben werden. Spring bietet hier Template Klassen an, welche diese Arbeiten bereits zum grossen Teil erledigen.
+#### JDBC Template Pattern
+Reduziert redundaten Code, verwaltet Ressourcen (Verbindungen), lässt sich einfach Injecten und vereinheitlicht das Exception handling. Konkret kann entweder ein ```JdbcTemplate``` oder ein ```NamedParameterJdbcTemplate``` verwendet werden. Letzteres ermöglicht SQL Anfragen welche benannte Parameter wie z.B. ```:id``` enthalten.
+##### Methoden
+- execute
+- query
+- update
+- batchUpdate
+
+##### Beispiel
+```Java
+@Override
+public List<Movie> findAll() {
+	return template.query(
+			"select * from Movies",
+			(rs, row) -> createMovie(rs) // callback method returns Movie instance per row
+	);
+}
+```
