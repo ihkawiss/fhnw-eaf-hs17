@@ -2,10 +2,16 @@ package ch.fhnw.edu.rental.model;
 
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
 @Entity
 @DiscriminatorColumn(name = "PRICECATEGORY_TYPE")
 public abstract class PriceCategory {
+	
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
 	public PriceCategory() {
