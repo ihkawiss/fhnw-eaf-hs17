@@ -8,6 +8,9 @@ import javax.persistence.Entity;
 public abstract class PriceCategory {
 	private Long id;
 
+	public PriceCategory() {
+	}
+	
 	public Long getId() {
 		return id;
 	}

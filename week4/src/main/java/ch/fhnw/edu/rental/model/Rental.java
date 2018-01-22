@@ -14,6 +14,9 @@ public class Rental {
 	private Date rentalDate;
 	private int rentalDays;
 	
+	public Rental() {
+	}
+	
 	public Rental(User user, Movie movie, int rentalDays) {
 		if (user == null || movie == null || rentalDays <= 0) {
 			throw new NullPointerException("not all input parameters are set!" + user + "/" + movie + "/" + rentalDays);

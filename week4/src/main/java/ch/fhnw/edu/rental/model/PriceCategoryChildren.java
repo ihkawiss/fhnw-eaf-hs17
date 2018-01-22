@@ -7,6 +7,9 @@ import javax.persistence.Entity;
 @DiscriminatorValue("Children")
 public class PriceCategoryChildren extends PriceCategory {
 
+	public PriceCategoryChildren() { 
+	}
+	
 	@Override
 	public double getCharge(int daysRented) {
 		double result = 1.5;

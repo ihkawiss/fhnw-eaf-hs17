@@ -13,6 +13,9 @@ public class Movie {
 	private boolean rented;
 	private PriceCategory priceCategory;
 
+	public Movie() {
+	}
+	
 	public Movie(String title, Date releaseDate, PriceCategory priceCategory) throws NullPointerException {
 		if ((title == null) || (releaseDate == null) || (priceCategory == null)) {
 			throw new NullPointerException("not all input parameters are set!");

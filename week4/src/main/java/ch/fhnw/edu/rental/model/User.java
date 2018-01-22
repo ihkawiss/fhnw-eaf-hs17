@@ -14,6 +14,9 @@ public class User {
 	private String email;
 	private List<Rental> rentals;
 
+	public User() {
+	}
+	
 	public User(String lastName, String firstName) {
 		this.lastName = lastName;
 		this.firstName = firstName;
