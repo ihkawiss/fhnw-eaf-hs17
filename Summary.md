@@ -115,3 +115,108 @@ public List<Movie> findAll() {
 	);
 }
 ```
+
+## Java Persistance API
+JPA übernimmt das Verwalten des Persistierens sowie das Mapping von Objekten gegenüber dem Persistance Layer (ORM).
+### Entity Manager
+Wie der Name bereits impliziert, verwaltet der EM die Entitäten und ermöglicht Zugriff via find, persist, update und remove auf diese (ähnlich wie bei einem Repository). Der Lifecycle der Entiät wird durch den EM kontrolliert. Konfiguriert werden Entitäten über ```@Entity``` Annotationen oder XML Dateien.
+#### Beispiel
+```Java
+@Entity
+public class Movie {
+	@Id
+	private Long id;
+}
+
+public class MovieRepository {
+	@PersistenceContext
+	private EntityManagerem;
+	public void saveNewMovie(String title, Date date) {
+		Movie m = new Movie(title, date);
+		em.persist(m);
+	}
+}
+```
+#### Methoden
+- **persist** Macht Objekt managed und persistiert
+- **remove** Löscht Instanz von der Datenbank
+- **find** Findet Entität bei PK/ID
+- **merge** Merges gegebene Entität mit dem Persistance Context, neue Instanz wird returnt
+- **refresh** Entität neu von der Datenbank laden, Änderungen werden verworfen
+- **flush** Schreibt den Persistance Context auf die Datenbank
+- **contains** prüft ob Entität zu dem Context gehört (nicht ob diese auf der DB vorhanden ist)
+- **clear** Context bereinigen, alle managed Objects werden detachted
+
+#### Persistance Context
+Dies ist eine Set von verwalteten Objekten welche durch den Entity Manager verwaltet werden.
+Eine Persistance Unit ist z.B. eine definierte Datenbank, diese können wie folgt auf einem EM definiert werden.
+```Java
+@PersistenceContext(name="movierental") // easy switching between persistance units
+```
+
+### Entity Annotations
+Folgend die wichtigsten Annotationen für Entitätsklassen im JPA/Hibernate Framework.
+
+```@Entity``` = markiert POJO als Entität, somit managed durch Entity Manager  
+```@Table(name="MyTableName")``` = definiert manuell Namen der Tabelle  
+```@Id``` = markiert Feld als PK  
+```@GeneratedValue(strategy=GenerationType.IDENTITY)``` = definiert wie Id Wert generiert werden soll  
+```@Column(name="MyColumn")``` = manuelle Definition des Spaltennamens  
+```@Basic``` = markiert Feld das persistiert werden soll  
+```@Enumerated``` = definiert wie Enumeration persistiert werden soll (EnumType.ORDINAL oder EnumType.STRING)  
+```@Lob``` = markiert Feld als large object, also BLOB Feld  
+```@Transient``` = Markiert Feld das nicht persistiert werden soll
+
+Bei ```@Entity```, ```@Table``` sowie ```@Column``` ist der Name jeweils der UQN des annotierten Felds/Klasse.
+
+### Primary Key generation
+Folgende Möglichkeiten zur Generierung von PKs sind vorhanden.  
+- Assigned (Applikation regelt Generierung/Zuweisung selbst)
+- Identity (Klassisches Auto-Increment)
+- Sequence (Generator wie UUID in MSSQL, ORACLE)
+- Table (PKs werden in seperater Tabelle geführt)
+
+### Queries
+In JPA können Queries natürlich auch selbst geschrieben werden, dies in sogn. JPQL. Bespiel:
+```Java
+TypedQuery<Movie> q = em.createQuery("SELECT m FROM Movie m WHERE m.title= :title", Movie.class);
+q.setParameter("title", title);
+List<Movie> movies = q.getResultList();
+```
+
+### Associations
+Beziehungen zwischen Entitäten können mittels JPA/Hibernate genau so definiert und benutzt werden. Beziehungen können unidirectional oder bidirectional sein. Für bidirektionale Beziehungen muss eine Seite mit ```mappedBy="FIELD_NAME"``` markiert werden.
+#### Collection type
+Werden Collections in Beziehungen verwendet, so muss der Typ des Ziels immer bekannt gemacht werden.
+```Java
+// manual definition
+@OneToMany(targetEntity=Order.class)
+public Collection orders;
+
+// Explicit
+@OneToMany
+Collection<Order> orders;
+```
+
+### ```@ManyToOne```
+**Owner:** Many Seite
+```Java
+@Entity
+public class Rental {
+	@ManyToOne // This is the owner of the relationship
+	@JoinColumn(name="USER_FK") // optional
+	private User user;
+}
+
+@Entity
+public class User {
+	@OneToMany(mappedBy="user")
+	private Collection<Rental> rentals;
+}
+```
+
+### Inheritance
+Alle Klassen in der Vererbungshirarchie müssen mit ```@Entity``` annotiert werden. Die einzelnen Klassen werden **immer** in eigenen Tabellen gespeichert.
+
+```@DiscriminatorColumn(name="PRICECATEGORY_TYPE") ``` defines name of column where dynamic type is stored  
+```@DiscriminatorValue("Children")``` defines value on concrete subclass
