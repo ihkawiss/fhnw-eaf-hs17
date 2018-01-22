@@ -3,6 +3,7 @@ package ch.fhnw.edu.rental.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -15,10 +16,16 @@ public class User {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "USER_ID")
 	private Long id;
 
+	@Column(name = "USER_NAME")
 	private String lastName;
+	
+	@Column(name = "USER_FIRSTNAME")
 	private String firstName;
+	
+	@Column(name = "USER_EMAIL")
 	private String email;
 	private List<Rental> rentals;
 

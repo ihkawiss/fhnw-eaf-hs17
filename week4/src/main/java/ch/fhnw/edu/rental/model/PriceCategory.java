@@ -1,5 +1,6 @@
 package ch.fhnw.edu.rental.model;
 
+import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -14,6 +15,7 @@ public abstract class PriceCategory {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "PRICECATEGORY_ID")
 	private Long id;
 
 	public PriceCategory() {

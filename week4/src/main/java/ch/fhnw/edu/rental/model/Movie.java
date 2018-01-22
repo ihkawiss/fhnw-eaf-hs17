@@ -2,6 +2,7 @@ package ch.fhnw.edu.rental.model;
 
 import java.util.Date;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -14,10 +15,16 @@ public class Movie {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "MOVIE_ID")
 	private Long id;
 
+	@Column(name = "MOVIE_TITLE")
 	private String title;
+	
+	@Column(name = "MOVIE_RELEASEDATE")
 	private Date releaseDate;
+	
+	@Column(name = "MOVIE_RENTED")
 	private boolean rented;
 	private PriceCategory priceCategory;
 

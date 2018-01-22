@@ -3,6 +3,7 @@ package ch.fhnw.edu.rental.model;
 import java.util.Calendar;
 import java.util.Date;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -10,21 +11,26 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name="RENTALS")
+@Table(name = "RENTALS")
 public class Rental {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "RENTAL_ID")
 	private Long id;
-	
+
 	private Movie movie;
 	private User user;
+
+	@Column(name = "RENTAL_RENTALDATE")
 	private Date rentalDate;
+
+	@Column(name = "RENTAL_RENTALDAYS")
 	private int rentalDays;
-	
+
 	public Rental() {
 	}
-	
+
 	public Rental(User user, Movie movie, int rentalDays) {
 		if (user == null || movie == null || rentalDays <= 0) {
 			throw new NullPointerException("not all input parameters are set!" + user + "/" + movie + "/" + rentalDays);
@@ -39,12 +45,12 @@ public class Rental {
 		this.rentalDays = rentalDays;
 		this.rentalDate = Calendar.getInstance().getTime();
 	}
-	
+
 	public Rental(User user, Movie movie, int rentalDays, Date rentalDate) {
 		this(user, movie, rentalDays);
 		this.setRentalDate(rentalDate);
 	}
-	
+
 	public int calcRemainingDaysOfRental(Date date) {
 		if (date == null) {
 			throw new NullPointerException("given date is not set!");
@@ -59,10 +65,10 @@ public class Rental {
 		int actDay = calendar.get(Calendar.DAY_OF_YEAR);
 		int actYear = calendar.get(Calendar.YEAR);
 		int diffDay = endDay - actDay;
-		if (max!=365) {
-			return 366*(endYear-actYear) + diffDay;
+		if (max != 365) {
+			return 366 * (endYear - actYear) + diffDay;
 		} else {
-			return 365*(endYear-actYear) + diffDay;
+			return 365 * (endYear - actYear) + diffDay;
 		}
 	}
 
@@ -92,7 +98,7 @@ public class Rental {
 
 	public void setId(Long id) {
 		this.id = id;
-	}	
+	}
 
 	public void setMovie(Movie movie) {
 		this.movie = movie;
@@ -109,6 +115,5 @@ public class Rental {
 	public void setRentalDays(int rentalDays) {
 		this.rentalDays = rentalDays;
 	}
-
 
 }
