@@ -3,6 +3,9 @@ package ch.fhnw.edu.rental.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Entity;
+
+@Entity
 public class User {
 	private Long id;
 

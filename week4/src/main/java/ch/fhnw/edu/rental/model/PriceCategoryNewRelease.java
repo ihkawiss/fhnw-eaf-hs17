@@ -1,5 +1,10 @@
 package ch.fhnw.edu.rental.model;
 
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+
+@Entity
+@DiscriminatorValue("NewRelease")
 public class PriceCategoryNewRelease extends PriceCategory {
 
 	@Override

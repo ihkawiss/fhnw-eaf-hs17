@@ -2,6 +2,9 @@ package ch.fhnw.edu.rental.model;
 
 import java.util.Date;
 
+import javax.persistence.Entity;
+
+@Entity
 public class Movie {
 	private Long id;
 

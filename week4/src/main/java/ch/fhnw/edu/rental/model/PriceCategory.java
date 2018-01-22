@@ -1,5 +1,10 @@
 package ch.fhnw.edu.rental.model;
 
+import javax.persistence.DiscriminatorColumn;
+import javax.persistence.Entity;
+
+@Entity
+@DiscriminatorColumn(name = "PRICECATEGORY_TYPE")
 public abstract class PriceCategory {
 	private Long id;
 

@@ -3,6 +3,9 @@ package ch.fhnw.edu.rental.model;
 import java.util.Calendar;
 import java.util.Date;
 
+import javax.persistence.Entity;
+
+@Entity
 public class Rental {
 	private Long id;
 	
