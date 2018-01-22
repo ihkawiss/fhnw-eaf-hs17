@@ -110,8 +110,8 @@ Reduziert redundaten Code, verwaltet Ressourcen (Verbindungen), lässt sich einf
 @Override
 public List<Movie> findAll() {
 	return template.query(
-			"select * from Movies",
-			(rs, row) -> createMovie(rs) // callback method returns Movie instance per row
+		"select * from Movies",
+		(rs, row) -> createMovie(rs) // callback method returns Movie instance per row
 	);
 }
 ```
