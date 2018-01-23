@@ -147,6 +147,12 @@ public class MovieRepository {
 - **contains** prüft ob Entität zu dem Context gehört (nicht ob diese auf der DB vorhanden ist)
 - **clear** Context bereinigen, alle managed Objects werden detachted
 
+#### Entity Bean Lifecycle
+- New (Transient)
+- Managed (Persistent)
+- Detached
+- Removed
+
 #### Persistance Context
 Dies ist eine Set von verwalteten Objekten welche durch den Entity Manager verwaltet werden.
 Eine Persistance Unit ist z.B. eine definierte Datenbank, diese können wie folgt auf einem EM definiert werden.
@@ -185,9 +191,9 @@ q.setParameter("title", title);
 List<Movie> movies = q.getResultList();
 ```
 
-### Associations
+## Associations
 Beziehungen zwischen Entitäten können mittels JPA/Hibernate genau so definiert und benutzt werden. Beziehungen können unidirectional oder bidirectional sein. Für bidirektionale Beziehungen muss eine Seite mit ```mappedBy="FIELD_NAME"``` markiert werden.
-#### Collection type
+### Collection type
 Werden Collections in Beziehungen verwendet, so muss der Typ des Ziels immer bekannt gemacht werden.
 ```Java
 // manual definition
@@ -199,8 +205,38 @@ public Collection orders;
 Collection<Order> orders;
 ```
 
-### ```@ManyToOne```
-**Owner:** Many Seite
+### Cascading
+Folgende Aktionen können mittels Cascading auch auf zugeordneten Entitäten ausgeführt werden.
+- PERSIST
+- REMOVE
+ - Nur bei ```@OneToOne``` und ```@OneToMany``` verwenden!
+- REFRESH
+- MERGE
+- DETACH
+- ALL
+
+### Fetch Types
+- EAGER
+ - Abhängigkeiten werden beim Laden des ROOT Objekts aufgelöst
+ - default für ```@OneToOne``` und ```@ManyToOne```
+- LAZY
+ - Abhängigkeiten werden bei Bedarf aufgelöst
+ - default für ```@OneToMany``` und ```@ManyToMany```
+
+
+
+### @OneToOne
+```Java
+// optional=false defines NOT NULL = TRUE
+@OneToOne(optional=false, cascade={CascadeType.PERSIST, CascadeType.REMOVE})
+private Address address; // unidirectional
+
+@OneToOne(mappedBy="address")
+private Person person; // makes it bidirectional
+```
+
+### @ManyToOne / @OneToMany
+**Bidirectional Owner:** Many Seite (mappedBy immer auf ```@OneToMany```)
 ```Java
 @Entity
 public class Rental {
@@ -215,6 +251,36 @@ public class User {
 	private Collection<Rental> rentals;
 }
 ```
+
+### ManyToMany
+- Jede Seite kann als Owner definiert werden.
+- Wird über eine Mapping-Tabelle realisiert (n:n)
+- Name der Mapping-Tabelle über ```@JoinTable``` definierbar
+- Name der Spalten definierbar
+
+```Java
+@JoinTable(
+	name = "ENROLLMENTS",
+	joinColumns = @JoinColumn(name = "student"),
+	inverseJoinColumns = @JoinColumn(name = "module")
+)
+@ManyToMany
+private List<Module> modules = new LinkedList<>();
+```
+
+#### Bidirektionale Beziehungen
+Wichtig bei genannten Beziehungen ist, dass es jeweils eine sogn. "Owner" Seite gibt.  
+Bei der Speicherung wird lediglich der State des Owners betrachtet - jener der Inversen Seite wird ignoriert.
+
+### Orphan removal
+Identisch zu Cascade.REMOVE, jedoch werden auch nicht mehr refernzierte Objekte gelöscht. Wird z.B. einem Feld null oder eine andere Instanz zugewiesen, so wird dies normalerweise nicht gelöscht auf der Datenbank. Mittels ```@OneToXXX(orphanRemoval=true)``` schon!
+
+### OrderBy
+- ```@OrderBy``` = by primary key
+- ```@OrderBy("name")``` = by name ascending)
+- ```@OrderBy("name DESC")``` = by name descending)
+- ```@OrderBy``` = by primary key
+- ```@OrderBy("city ASC, name ASC")``` = by phonebook order
 
 ### Inheritance
 Alle Klassen in der Vererbungshirarchie müssen mit ```@Entity``` annotiert werden. Die einzelnen Klassen werden **immer** in eigenen Tabellen gespeichert.
