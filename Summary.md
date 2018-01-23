@@ -191,13 +191,53 @@ Folgende Möglichkeiten zur Generierung von PKs sind vorhanden.
 - Sequence (Generator wie UUID in MSSQL, ORACLE)
 - Table (PKs werden in seperater Tabelle geführt)
 
-#### Queries
+### Queries
 In JPA können Queries natürlich auch selbst geschrieben werden, dies in sogn. JPQL. Bespiel:
 ```Java
 TypedQuery<Movie> q = em.createQuery("SELECT m FROM Movie m WHERE m.title= :title", Movie.class);
 q.setParameter("title", title);
 List<Movie> movies = q.getResultList();
+// q.getSingleResult() ==> would return one result
 ```
+#### Typed Named Queries
+Queries können auf der Entitätsklasse vordefiniert werden, quasi als Variable.
+```Java
+@NamedQueries({
+	@NamedQuery(name="movie.all", query="SELECT m from Movie m"),
+	@NamedQuery(name="movie.byTitle", query="select m from Movie m where m.title = :title")
+})
+class Movie {...}
+
+// Verwendung
+TypedQuery<Movie> q = em.createNamedQuery("movie.byTitle", Movie.class);
+```
+#### Interessantes Query
+```SQL
+SELECT NEW ch.fhnw.edu.Person(c.name,c.prename) FROM Customer c
+```
+
+#### Pageing
+```Java
+query.setFirstResult(20);	// start at position 20
+query.setMaxResults(10); 	// take 10 entries
+```
+
+#### Joins
+- Bei ManyToOne und OneToOne werden Joins implizit gemacht
+```SQL
+SELECT c.name, c.address.city FROM Customer c
+```
+- Über mehrere Many Beziehungen hinwegg (User->Rentals->Movie) braucht es explizite Joins!
+```SQL
+-- INNER JOIN
+SELECT r.movie.title from User u inner join u.rentals r
+-- LEFT OUTER JOIN
+SELECT u.name, r from User u leftjoin u.rentals r
+-- LAZY LOADING JOIN
+SELECT u from User u left join fetch u.rentals
+```
+
+
 #### OrderBy
 - ```@OrderBy``` = by primary key
 - ```@OrderBy("name")``` = by name ascending)
@@ -295,7 +335,7 @@ Identisch zu Cascade.REMOVE, jedoch werden auch nicht mehr refernzierte Objekte 
 ## Inheritance
 Alle Klassen in der Vererbungshirarchie müssen mit ```@Entity``` annotiert werden. Auf der ROOT Klasse kann das Verhalten beim persistieren gesteuert werden. Hierzu wird über die Annotation ```@Inheritance``` ein InheritanceType angegeben.
 
-#### SINGLE_TABLE
+#### SINGLE_TABLE (DEFAULT)
 ```@Inheritance(strategy=InheritanceType.SINGLE_TABLE) ```  
 - Alle Attribute in einer Tabelle
 - Typ mittels ```@DiscriminatorColumn("name_of_type", DiscriminatorType type)```
