@@ -43,7 +43,15 @@ public class JpaRentalRepository implements RentalRepository {
 
 	@Override
 	public void delete(Rental entity) {
-		em.remove(em.contains(entity) ? entity : em.merge(entity));
+		Rental inCtx = em.contains(entity) ? entity : em.merge(entity);
+		
+		// free movie is it's rented
+		if(inCtx.getMovie().isRented()) {
+			inCtx.getMovie().setRented(false);
+			em.persist(inCtx.getMovie());
+		}
+		
+		em.remove(inCtx);
 	}
 
 	@Override
