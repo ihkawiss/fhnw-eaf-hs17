@@ -283,6 +283,10 @@ Identisch zu Cascade.REMOVE, jedoch werden auch nicht mehr refernzierte Objekte 
 - ```@OrderBy``` = by primary key
 - ```@OrderBy("city ASC, name ASC")``` = by phonebook order
 
+### Flush Mode
+- AUTO (Änderungen werden **vor** einem Query geflusht)
+- COMMIT (Änderungen werden **nur** explizit - ```em.flush()``` - geflusht)
+
 ### Inheritance
 Alle Klassen in der Vererbungshirarchie müssen mit ```@Entity``` annotiert werden. Die einzelnen Klassen werden **immer** in eigenen Tabellen gespeichert.
 
