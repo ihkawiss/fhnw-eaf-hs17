@@ -2,54 +2,56 @@ package ch.fhnw.edu.rental.persistence.impl;
 
 import java.util.List;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+
 import org.springframework.stereotype.Repository;
 
+import ch.fhnw.edu.rental.model.Movie;
 import ch.fhnw.edu.rental.model.PriceCategory;
 import ch.fhnw.edu.rental.persistence.PriceCategoryRepository;
 
 @Repository
 public class JpaPriceCategoryRepository implements PriceCategoryRepository {
 
+	@PersistenceContext
+	private EntityManager em;
+	
 	@Override
 	public PriceCategory findOne(Long id) {
-		// TODO Auto-generated method stub
-		return null;
+		return em.find(PriceCategory.class, id);
 	}
 
 	@Override
 	public List<PriceCategory> findAll() {
-		// TODO Auto-generated method stub
-		return null;
+		TypedQuery<PriceCategory> query = em.createQuery("SELECT pc FROM PriceCategory pc", PriceCategory.class);
+		return query.getResultList();
 	}
 
 	@Override
 	public PriceCategory save(PriceCategory entity) {
-		// TODO Auto-generated method stub
-		return null;
+		return em.merge(entity);
 	}
 
 	@Override
 	public void delete(Long id) {
-		// TODO Auto-generated method stub
-		
+		em.remove(em.getReference(PriceCategory.class, id));
 	}
 
 	@Override
 	public void delete(PriceCategory entity) {
-		// TODO Auto-generated method stub
-		
+		em.remove(entity);
 	}
 
 	@Override
 	public boolean exists(Long id) {
-		// TODO Auto-generated method stub
-		return false;
+		return findOne(id) != null;
 	}
 
 	@Override
 	public long count() {
-		// TODO Auto-generated method stub
-		return 0;
+		return em.createQuery("SELECT COUNT(pc) FROM PriceCategory pc", Long.class).getSingleResult();
 	}
 
 
