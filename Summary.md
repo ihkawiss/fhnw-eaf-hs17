@@ -238,7 +238,7 @@ private Person person; // makes it bidirectional
 
 ### @ManyToOne / @OneToMany
 **Bidirectional Owner:** Many Seite (mappedBy immer auf ```@OneToMany```)  
-Tipp: Immer aus Sicht der Klasse beurteilen. Ein Kunde hat viele Bestellungen - Many orders to one customer - ```@ManyToOne```
+Tipp: Immer aus Sicht der Klasse beurteilen. Ein User hat viele Rentals - one user to many rentals - ```@OneToMany```
 ```Java
 @Entity
 public class Rental {
