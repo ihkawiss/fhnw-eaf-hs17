@@ -167,7 +167,7 @@ em.getTransaction().begin();
 em.getTransaction().commit();
 ```
 
-### Entity Annotations
+#### Entity Annotations
 Folgend die wichtigsten Annotationen für Entitätsklassen im JPA/Hibernate Framework.
 
 ```@Entity``` = markiert POJO als Entität, somit managed durch Entity Manager  
@@ -183,7 +183,7 @@ Folgend die wichtigsten Annotationen für Entitätsklassen im JPA/Hibernate Fram
 
 Bei ```@Entity```, ```@Table``` sowie ```@Column``` ist der Name jeweils der UQN des annotierten Felds/Klasse.
 
-### Primary Key generation
+#### Primary Key generation
 Folgende Möglichkeiten zur Generierung von PKs sind vorhanden.  
 - AUTO (JPA/Hibernate wählt einen basiernd auf unterliegender DB)
 - Assigned (Applikation regelt Generierung/Zuweisung selbst)
@@ -191,17 +191,27 @@ Folgende Möglichkeiten zur Generierung von PKs sind vorhanden.
 - Sequence (Generator wie UUID in MSSQL, ORACLE)
 - Table (PKs werden in seperater Tabelle geführt)
 
-### Queries
+#### Queries
 In JPA können Queries natürlich auch selbst geschrieben werden, dies in sogn. JPQL. Bespiel:
 ```Java
 TypedQuery<Movie> q = em.createQuery("SELECT m FROM Movie m WHERE m.title= :title", Movie.class);
 q.setParameter("title", title);
 List<Movie> movies = q.getResultList();
 ```
+#### OrderBy
+- ```@OrderBy``` = by primary key
+- ```@OrderBy("name")``` = by name ascending)
+- ```@OrderBy("name DESC")``` = by name descending)
+- ```@OrderBy``` = by primary key
+- ```@OrderBy("city ASC, name ASC")``` = by phonebook order
+
+#### Flush Mode
+- AUTO (Änderungen werden **vor** einem Query geflusht)
+- COMMIT (Änderungen werden **nur** explizit - ```em.flush()``` - geflusht)
 
 ## Associations
 Beziehungen zwischen Entitäten können mittels JPA/Hibernate genau so definiert und benutzt werden. Beziehungen können unidirectional oder bidirectional sein. Für bidirektionale Beziehungen muss eine Seite mit ```mappedBy="FIELD_NAME"``` markiert werden.
-### Collection type
+#### Collection type
 Werden Collections in Beziehungen verwendet, so muss der Typ des Ziels immer bekannt gemacht werden.
 ```Java
 // manual definition
@@ -213,7 +223,7 @@ public Collection orders;
 Collection<Order> orders;
 ```
 
-### Cascading
+#### Cascading
 Folgende Aktionen können mittels Cascading auch auf zugeordneten Entitäten ausgeführt werden.
 - PERSIST
 - REMOVE
@@ -223,7 +233,7 @@ Folgende Aktionen können mittels Cascading auch auf zugeordneten Entitäten aus
 - DETACH
 - ALL
 
-### Fetch Types
+#### Fetch Types
 - EAGER
  - Abhängigkeiten werden beim Laden des ROOT Objekts aufgelöst
  - default für ```@OneToOne``` und ```@ManyToOne```
@@ -231,7 +241,7 @@ Folgende Aktionen können mittels Cascading auch auf zugeordneten Entitäten aus
  - Abhängigkeiten werden bei Bedarf aufgelöst
  - default für ```@OneToMany``` und ```@ManyToMany```
 
-### @OneToOne
+#### @OneToOne
 ```Java
 // optional=false defines NOT NULL = TRUE
 @OneToOne(optional=false, cascade={CascadeType.PERSIST, CascadeType.REMOVE})
@@ -241,7 +251,7 @@ private Address address; // unidirectional
 private Person person; // makes it bidirectional
 ```
 
-### @ManyToOne / @OneToMany
+#### @ManyToOne / @OneToMany
 **Bidirectional Owner:** Many Seite (mappedBy immer auf ```@OneToMany```)  
 Tipp: Immer aus Sicht der Klasse beurteilen. Ein User hat viele Rentals - one user to many rentals - ```@OneToMany```
 ```Java
@@ -259,7 +269,7 @@ public class User {
 }
 ```
 
-### ManyToMany
+#### ManyToMany
 - Jede Seite kann als Owner definiert werden.
 - Wird über eine Mapping-Tabelle realisiert (n:n)
 - Name der Mapping-Tabelle über ```@JoinTable``` definierbar
@@ -279,21 +289,10 @@ private List<Module> modules = new LinkedList<>();
 Wichtig bei genannten Beziehungen ist, dass es jeweils eine sogn. "Owner" Seite gibt.  
 Bei der Speicherung wird lediglich der State des Owners betrachtet - jener der Inversen Seite wird ignoriert.
 
-### Orphan removal
+#### Orphan removal
 Identisch zu Cascade.REMOVE, jedoch werden auch nicht mehr refernzierte Objekte gelöscht. Wird z.B. einem Feld null oder eine andere Instanz zugewiesen, so wird dies normalerweise nicht gelöscht auf der Datenbank. Mittels ```@OneToXXX(orphanRemoval=true)``` schon!
 
-### OrderBy
-- ```@OrderBy``` = by primary key
-- ```@OrderBy("name")``` = by name ascending)
-- ```@OrderBy("name DESC")``` = by name descending)
-- ```@OrderBy``` = by primary key
-- ```@OrderBy("city ASC, name ASC")``` = by phonebook order
-
-### Flush Mode
-- AUTO (Änderungen werden **vor** einem Query geflusht)
-- COMMIT (Änderungen werden **nur** explizit - ```em.flush()``` - geflusht)
-
-### Inheritance
+## Inheritance
 Alle Klassen in der Vererbungshirarchie müssen mit ```@Entity``` annotiert werden. Die einzelnen Klassen werden **immer** in eigenen Tabellen gespeichert.
 
 ```@DiscriminatorColumn(name="PRICECATEGORY_TYPE") ``` defines name of column where dynamic type is stored  
