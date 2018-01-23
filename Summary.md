@@ -160,6 +160,13 @@ Eine Persistance Unit ist z.B. eine definierte Datenbank, diese können wie folg
 @PersistenceContext(name="movierental") // easy switching between persistance units
 ```
 
+#### Manuelle Transaktion
+```Java
+em.getTransaction().begin();
+...
+em.getTransaction().commit();
+```
+
 ### Entity Annotations
 Folgend die wichtigsten Annotationen für Entitätsklassen im JPA/Hibernate Framework.
 
@@ -223,8 +230,6 @@ Folgende Aktionen können mittels Cascading auch auf zugeordneten Entitäten aus
 - LAZY
  - Abhängigkeiten werden bei Bedarf aufgelöst
  - default für ```@OneToMany``` und ```@ManyToMany```
-
-
 
 ### @OneToOne
 ```Java
