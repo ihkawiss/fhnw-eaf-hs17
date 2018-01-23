@@ -1,9 +1,13 @@
 package ch.fhnw.edu.jpa.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
 @Entity
@@ -18,6 +22,9 @@ public class Customer {
 	@OneToOne
 	private Address address;
 
+	@OneToMany(mappedBy = "customer")
+	private List<Order> orders = new ArrayList<Order>();
+	
 	private int age;
 
 	protected Customer() {
@@ -56,6 +63,10 @@ public class Customer {
 		this.address = address;
 	}
 
+	public List<Order> getOrders(){
+		return orders;
+	}
+	
 	@Override
 	public String toString() {
 		if (address == null)
