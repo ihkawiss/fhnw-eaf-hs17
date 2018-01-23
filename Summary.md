@@ -293,7 +293,29 @@ Bei der Speicherung wird lediglich der State des Owners betrachtet - jener der I
 Identisch zu Cascade.REMOVE, jedoch werden auch nicht mehr refernzierte Objekte gelöscht. Wird z.B. einem Feld null oder eine andere Instanz zugewiesen, so wird dies normalerweise nicht gelöscht auf der Datenbank. Mittels ```@OneToXXX(orphanRemoval=true)``` schon!
 
 ## Inheritance
-Alle Klassen in der Vererbungshirarchie müssen mit ```@Entity``` annotiert werden. Die einzelnen Klassen werden **immer** in eigenen Tabellen gespeichert.
+Alle Klassen in der Vererbungshirarchie müssen mit ```@Entity``` annotiert werden. Auf der ROOT Klasse kann das Verhalten beim persistieren gesteuert werden. Hierzu wird über die Annotation ```@Inheritance``` ein InheritanceType angegeben.
 
-```@DiscriminatorColumn(name="PRICECATEGORY_TYPE") ``` defines name of column where dynamic type is stored  
-```@DiscriminatorValue("Children")``` defines value on concrete subclass
+#### SINGLE_TABLE
+```@Inheritance(strategy=InheritanceType.SINGLE_TABLE) ```  
+- Alle Attribute in einer Tabelle
+- Typ mittels ```@DiscriminatorColumn("name_of_type", DiscriminatorType type)```
+- Value mittels ```@DiscriminatorValue("value_of_type")```
+- Neue Felder in Sub-Klassen müssen Nullable sein
+- FKs können nur auf Basisklasse zeigen
+
+#### JOINED
+```@Inheritance(strategy=InheritanceType.JOINED) ```  
+- Pro Klasse wird eine Tabelle angelegt (BASE-PK joined)  
+- Vorteile: Normalized, NOT NULL möglich, FKs zu Subklassen möglich
+- Nachteil: Zugriffe müssen über mehrere Tabellen gehen
+
+#### TABLE_PER_CLASS
+```@Inheritance(strategy=InheritanceType.TABLE_PER_CLASS) ```
+- Eine Tabelle pro nicht abstrakte Klasse
+- Tabelle enthält jeweils Felder der Basisklasse(n) sowie der abgeleiteten Klasse
+- Vorteile: NOT NULL möglich, FKs zu Subklassen möglich
+- Nachteil: ID-Generator nicht nutzbar, Polymorphe Abfragen müssen mehrere Tabellen anfragen
+
+#### @MappedSuperclass
+Diese Annotation signalisiert, dass diese Klasse eine Superklasse ist und nicht direkt in der DB abgebildet werden soll.  
+Erben ```@Entity``` Klassen jedoch von dieser, werden deren Properties übernommen und persistiert.
