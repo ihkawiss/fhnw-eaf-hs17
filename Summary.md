@@ -178,6 +178,7 @@ Bei ```@Entity```, ```@Table``` sowie ```@Column``` ist der Name jeweils der UQN
 
 ### Primary Key generation
 Folgende Möglichkeiten zur Generierung von PKs sind vorhanden.  
+- AUTO (JPA/Hibernate wählt einen basiernd auf unterliegender DB)
 - Assigned (Applikation regelt Generierung/Zuweisung selbst)
 - Identity (Klassisches Auto-Increment)
 - Sequence (Generator wie UUID in MSSQL, ORACLE)
