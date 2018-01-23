@@ -237,13 +237,50 @@ SELECT u.name, r from User u leftjoin u.rentals r
 SELECT u from User u left join fetch u.rentals
 ```
 
-
 #### OrderBy
 - ```@OrderBy``` = by primary key
 - ```@OrderBy("name")``` = by name ascending)
 - ```@OrderBy("name DESC")``` = by name descending)
 - ```@OrderBy``` = by primary key
 - ```@OrderBy("city ASC, name ASC")``` = by phonebook order
+
+#### Criteria API
+Das Schreiben von JSQL Queries kann zu verdeckten Fehlern führen. Mit der Creteria API lassen sich Queries mittels OOP Builder schreiben.
+```Java
+CriteriaBuildercb= em.getCriteriaBuilder();
+CriteriaQuery<Movie> cq= cb.createQuery(Movie.class);
+// SELECT m FROM Movie m WHERE m.title= :title
+Root<Movie> m = cq.from(Movie.class);
+cq.select(m);
+cq.where(cb.equal(m.get("title"), title));
+return em.createQuery(cq).getResultList();
+```
+
+#### Meta data class
+Um bei der Creteria API auf Strings verzichten zu können (oben ```m.get("title")```), kann eine meta data Klasse erstellt werden.
+```Java
+@StaticMetamodel(Movie.class)
+public abstract class Movie_ {
+public static volatile SingularAttribute<Movie, Boolean> rented;
+...
+cq.where(cb.equal(m.get(Movie_.title), title));
+```
+**Inner Join mit Creteria API**
+```Java
+CriteriaBuildercb= em.getCriteriaBuilder();
+CriteriaQuery<Object[]> query= cb.createQuery(Object[].class);
+Root<User> user= query.from(User.class);
+Join<User, Rental> rental = user.join(User_.rentals);
+query.select(cb.array(
+	user.get(User_.lastName),
+	rental.get(Rental_.movie).get(Movie_.title)
+));
+List<Object[]> result= em.createQuery(query).getResultList();
+for(Object[] res: result) {
+	…
+}
+```
+
 
 #### Flush Mode
 - AUTO (Änderungen werden **vor** einem Query geflusht)
