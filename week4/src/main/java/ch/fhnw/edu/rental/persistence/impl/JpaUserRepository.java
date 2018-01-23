@@ -40,7 +40,7 @@ public class JpaUserRepository implements UserRepository {
 
 	@Override
 	public void delete(User entity) {
-		em.remove(entity);
+		em.remove(em.contains(entity) ? entity : em.merge(entity));
 	}
 
 	@Override

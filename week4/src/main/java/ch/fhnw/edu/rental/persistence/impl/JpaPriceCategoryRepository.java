@@ -41,7 +41,7 @@ public class JpaPriceCategoryRepository implements PriceCategoryRepository {
 
 	@Override
 	public void delete(PriceCategory entity) {
-		em.remove(entity);
+		em.remove(em.contains(entity) ? entity : em.merge(entity));
 	}
 
 	@Override
