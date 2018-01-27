@@ -230,7 +230,7 @@ SELECT c.name, c.address.city FROM Customer c
 - Über mehrere Many Beziehungen hinwegg (User->Rentals->Movie) braucht es explizite Joins!
 ```SQL
 -- INNER JOIN
-SELECT r.movie.title from User u inner join u.rentals r
+SELECT r.movie.title from User u inner join u.rentals r where r.id = 10
 -- LEFT OUTER JOIN
 SELECT u.name, r from User u leftjoin u.rentals r
 -- LAZY LOADING JOIN
@@ -280,7 +280,6 @@ for(Object[] res: result) {
 	…
 }
 ```
-
 
 #### Flush Mode
 - AUTO (Änderungen werden **vor** einem Query geflusht)
