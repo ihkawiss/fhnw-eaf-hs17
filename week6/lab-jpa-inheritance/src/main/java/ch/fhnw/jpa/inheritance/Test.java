@@ -27,7 +27,7 @@ public class Test implements CommandLineRunner {
 	}
 	
 	private void test1() {
-		Post p = new Post("First Post", "Dominik");
+		Post p = new Post("First Post", "Dominik", "Sample content");
 		Announcement a = new Announcement("First Announcement", "Dominik", new Date());
 		em.persist(p);
 		em.persist(a);

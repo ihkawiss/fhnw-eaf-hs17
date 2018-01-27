@@ -3,8 +3,11 @@ package ch.fhnw.jpa.inheritance;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 
 @Entity
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public abstract class Topic {
 	@Id @GeneratedValue
 	private Long id;

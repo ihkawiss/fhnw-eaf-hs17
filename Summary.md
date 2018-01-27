@@ -378,6 +378,7 @@ Alle Klassen in der Vererbungshirarchie müssen mit ```@Entity``` annotiert werd
 - Typ mittels ```@DiscriminatorColumn("name_of_type", DiscriminatorType type)```
 - Value mittels ```@DiscriminatorValue("value_of_type")```
 - Neue Felder in Sub-Klassen müssen Nullable sein
+- optional = false nur mittles manuellen SQLs constraints möglich
 - FKs können nur auf Basisklasse zeigen
 
 #### JOINED

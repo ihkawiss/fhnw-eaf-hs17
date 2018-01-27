@@ -5,7 +5,7 @@ import javax.persistence.Entity;
 
 @Entity
 public class Post extends Topic {
-	@Basic
+	@Basic(optional = false)
 	private String content;
 
 	protected Post() { }
