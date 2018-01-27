@@ -481,3 +481,100 @@ List<Movie> byTitle(@Param("title") String title);
 @Query("select m from Movie m where UPPER(m.title) = UPPER(:title)")
 List<Movie> findMovieByTitle(@Param("title") String title);
 ```
+
+## DTOs
+Werden ```@Entity``` Entitäten als Resultat zurückgegeben und weiterverwendet treten folgende Probleme auf:
+- Lazy loading Exceptions wenn Felder nicht zugreifbar sind weil **DETACHED**
+- Solche "accessors" welche Exceptions werfen verletzen den "Contract"
+
+#### Verhindern der Exceptions
+- FetchType.EAGER
+- keep session / persistence context open
+- JPQL: fetch join
+- Entity Graphs
+
+#### Entity Graphs
+```Java
+@NamedEntityGraphs({
+	@NamedEntityGraph(name="previewCustomerEntityGraph",
+		attributeNodes= {
+			@NamedAttributeNode("name"),
+			@NamedAttributeNode("age") }),
+	@NamedEntityGraph(name="fullCustomerEntityGraph",
+		attributeNodes= {
+			@NamedAttributeNode("name"),
+			@NamedAttributeNode("age"),
+			@NamedAttributeNode("address"),
+			@NamedAttributeNode("orders") })
+	// optional (sample)
+	subgraphs={} // Allows to define subgraphsfor the associated objects
+})
+@Entity
+public class Customer { ... }
+
+// Passing the entity graph as a property
+// If a fetch graph is used, only the attributes specified by the entity graph will
+// be treated as FetchType.EAGER. All other attributes will be lazy
+Map<String, Object> props = new HashMap<>();
+props.put("javax.persistence.fetchgraph",
+em.getEntityGraph("fullCustomerEntityGraph"));
+Customer c = em.find(Customer.class, 1, props);
+
+// Passing the entity graph as a hint
+// If a load graph is used, all attributes that are not specified
+// by the entity graph will keep their default fetch type
+EntityGraph<?> eg= em.getEntityGraph("previewEmailEntityGraph");
+List<Customer> customers = em.createNamedQuery("user.findByName",
+Customer.class)
+				.setParameter("name", name)
+				.setHint("javax.persistence.loadgraph", eg)
+				.getResultList();
+```
+
+#### DTO Sample
+```Java
+public class UserDto implements Serializable{
+	private Long id;
+	private String lastName;
+	private String firstName;
+	private List<Long> rentalIds; // allows to access rentals on demand
+	public UserDto(Long id, String lastName, String firstName, List<Long> rentalIds) {
+		this.id = id;
+		this.lastName= name;
+		this.firstName= firstName;
+		this.rentalIds= rentalIds;
+	}
+}
+
+// in repository
+public UserDtogetUserDataById(Long id) {
+	TypedQuery<UserDTO> q = em.createNamedQuery("User.dataById", UserDTO.class);
+	q.setParameter("id", id);
+	UserDTO dto = q.getSingleResult();
+	TypedQuery<Long> q2 = em.createNamedQuery("User.rentalsById",Long.class);
+	q2.setParameter("id", id);
+	dto.setRentalIds(q2.getResultList());
+	return dto;
+}
+
+// custom named query
+@NamedQuery(name="User.dataById", query="SELECT NEW ch.fhnw.eaf.UserDto(u.id, u.name, u.firstName) FROM User u WHERE u.id = :id"),
+@NamedQuery(name="User.rentalsById", query="SELECT r.id FROM User u, IN(u.rentals) r WHERE u.id = :id")
+
+// mapper
+@Mapper(componentModel="spring")
+public interface MovieMapper{
+	@Mapping(source = "rentals", target = "rentalIds")
+	UserDtouserToUserDto(User user);
+	default Long rentalToLong(Rental r) {
+		return r.getId();
+	}
+}
+
+@Autowired
+MovieMappermapper;
+
+public UserDto getUserDataById(Long id) {
+	return mapper.userToUserDto(userRepo.findOne(id));
+}
+```
