@@ -396,3 +396,88 @@ Alle Klassen in der Vererbungshirarchie müssen mit ```@Entity``` annotiert werd
 #### @MappedSuperclass
 Diese Annotation signalisiert, dass diese Klasse eine Superklasse ist und nicht direkt in der DB abgebildet werden soll.  
 Erben ```@Entity``` Klassen jedoch von dieser, werden deren Properties übernommen und persistiert.
+
+## Automatic JPA Repositories
+Bei der "manuelle" Implementierung von JPA Repositories fällt auf, dass diese oft gleich aussehen (Boilderplate) und jeweils direkt mit dem Entity Manager interagieren. Die Code-Stellen lässt sich mit Spring Data bequem automatisch generieren.
+
+#### JPA Repository
+Das Interface ```JpaRepository``` bietet CRUD sowie Paging und Sorting Methoden an. Die Implementation ist Teil von Spring Boot. In Repositories welche Spring findet, bzw. wo konfiguriert, können die generierten Methoden direkt "gratis" verwendet werden.
+
+**Konfiguration**
+```XML
+<jpa:repositories base-package="ch.fhnw.edu.rental.repository" />
+```
+```Java
+@EnableJpaRepositories("ch.fhnw.edu.rental.repository")
+@EnableJpaRepositories(basePackageClasses=RentalRepository.class)
+
+rentalRepository.findAll(); // gratis!
+```
+
+#### Query Methods (MAGIC)
+In einem Interface, welches von JpaRepository erbt, können weitere Methoden definiert werden. Über den Namen können automatisch Queries generiert werden.
+```Java
+public interface MovieRepository extends JpaRepository<Movie, Long> {
+	// NOTATION: find[Entity]By…
+	List<Movie> findMovieByTitleIgnoringCase(String title);
+	// ==> where upper(m.title) = upper(?1)
+}
+```
+
+##### Mögliche Keywords
+- AND / OR
+ - findByLastnameAndFirstname / findByLastnameOrFirstname
+ - ```where x.lastname = ?1 and (or) x.firstname = ?2```
+- Is, Equals
+ - findByFirstnameIs/ findByFirstnameEquals/ findByFirstname
+ - ```where x.firstname = ?1```
+- Between
+ - findByStartDateBetween
+ - ```where x.startDate between ?1 and ?2```
+- LessThan, GreaterThan
+ - findByAgeLessThan/ findByAgeGreaterThan
+ - ```where x.age < ?1 / … where x.age > ?1```
+- After, Before
+ - findByStartDateAfter/ findByStartDateBefore
+ - ```where x.startDate > ?1 / … where x.startDate < ?1```
+- IsNull, IsNotNull, NotNull
+ - findByAgeIsNull/ findByAge[Is]NotNull
+ - ```where x.age is null / … where x.age not null```
+- Like / NotLike
+ - findByFirstnameLike/ findByFirstnameNotLike
+ - ```where x.firstname like ?1/ … where x.firstname not like ?1```
+- OrderBy
+ - findByAgeOrderByLastnameDesc
+ - ```where x.age = ?1 order by x.lastname desc```
+- True / False
+ - findByActiveTrue()/ findByActiveFalse()
+ - ```where x.active = true/ … where x.active = false```
+- In / NotIn
+ - findByAge[Not]In(Collection<Age> ages)
+ - ```where x.age in ?1/ … where x.age not in ?1```
+- Not
+ - findByLastnameNot
+ - ```where x.lastname <> ?1```
+- IgnoreCase
+ - findByFirstnameIgnoreCase
+ - ```where UPPER(x.firstname) = UPPER(?1)```
+- Limit
+ - findFirstByAddressCityByNameAsc
+ - findFirst10ByLastnameAsc
+
+##### Zugriff auf Properties
+```Java
+// Entities can be passed as parameters
+// Attributes over ManyToOne / OneToOne associations can be accessed
+List<Rental> findByMovieTitleContains(String title);
+List<Rental> findByMoviePriceCategoryIs(PriceCategory pc);
+```
+#### Named Queries
+```Java
+// @NamedQuery(name = "Movie.byTitle", query = "SELECT m FROM Movie m WHERE m.title =":title"
+List<Movie> byTitle(@Param("title") String title);
+
+// Explicit Query specification using @Query
+@Query("select m from Movie m where UPPER(m.title) = UPPER(:title)")
+List<Movie> findMovieByTitle(@Param("title") String title);
+```
