@@ -247,8 +247,8 @@ SELECT u from User u left join fetch u.rentals
 #### Criteria API
 Das Schreiben von JSQL Queries kann zu verdeckten Fehlern führen. Mit der Creteria API lassen sich Queries mittels OOP Builder schreiben.
 ```Java
-CriteriaBuildercb= em.getCriteriaBuilder();
-CriteriaQuery<Movie> cq= cb.createQuery(Movie.class);
+CriteriaBuilder cb = em.getCriteriaBuilder();
+CriteriaQuery<Movie> cq = cb.createQuery(Movie.class);
 // SELECT m FROM Movie m WHERE m.title= :title
 Root<Movie> m = cq.from(Movie.class);
 cq.select(m);

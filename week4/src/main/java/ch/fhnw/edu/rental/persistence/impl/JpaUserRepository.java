@@ -3,10 +3,11 @@ package ch.fhnw.edu.rental.persistence.impl;
 import java.util.List;
 
 import javax.persistence.EntityManager;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 
 import org.springframework.stereotype.Repository;
 
@@ -26,8 +27,13 @@ public class JpaUserRepository implements UserRepository {
 
 	@Override
 	public List<User> findAll() {
-		TypedQuery<User> query = em.createNamedQuery("User.all", User.class);
-		return query.getResultList();
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<User> cq = cb.createQuery(User.class);
+		
+		Root<User> entity = cq.from(User.class);
+		cq.select(entity);
+		
+		return em.createQuery(cq).getResultList();
 	}
 
 	@Override
