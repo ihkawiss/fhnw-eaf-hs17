@@ -3,12 +3,13 @@ package ch.fhnw.edu.rental.persistence.impl;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 
 import org.springframework.stereotype.Repository;
 
-import ch.fhnw.edu.rental.model.Movie;
 import ch.fhnw.edu.rental.model.PriceCategory;
 import ch.fhnw.edu.rental.persistence.PriceCategoryRepository;
 
@@ -25,7 +26,7 @@ public class JpaPriceCategoryRepository implements PriceCategoryRepository {
 
 	@Override
 	public List<PriceCategory> findAll() {
-		TypedQuery<PriceCategory> query = em.createQuery("SELECT pc FROM PriceCategory pc", PriceCategory.class);
+		TypedQuery<PriceCategory> query = em.createNamedQuery("PriceCategory.all", PriceCategory.class);
 		return query.getResultList();
 	}
 
@@ -51,7 +52,7 @@ public class JpaPriceCategoryRepository implements PriceCategoryRepository {
 
 	@Override
 	public long count() {
-		return em.createQuery("SELECT COUNT(pc) FROM PriceCategory pc", Long.class).getSingleResult();
+		return em.createNamedQuery("PriceCategory.count", Long.class).getSingleResult();
 	}
 
 

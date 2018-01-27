@@ -3,13 +3,14 @@ package ch.fhnw.edu.rental.persistence.impl;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 
 import org.springframework.stereotype.Repository;
 
 import ch.fhnw.edu.rental.model.Movie;
-import ch.fhnw.edu.rental.model.PriceCategory;
 import ch.fhnw.edu.rental.persistence.MovieRepository;
 
 @Repository
@@ -25,7 +26,7 @@ public class JpaMovieRepository implements MovieRepository {
 
 	@Override
 	public List<Movie> findAll() {
-		TypedQuery<Movie> query = em.createQuery("SELECT m FROM Movie m", Movie.class);
+		TypedQuery<Movie> query = em.createNamedQuery("Movie.all", Movie.class);
 		return query.getResultList();
 	}
 
@@ -51,12 +52,12 @@ public class JpaMovieRepository implements MovieRepository {
 
 	@Override
 	public long count() {
-		return em.createQuery("SELECT COUNT(m) FROM Movie m", Long.class).getSingleResult();
+		return em.createNamedQuery("Movie.count", Long.class).getSingleResult();
 	}
 
 	@Override
 	public List<Movie> findByTitle(String title) {
-		TypedQuery<Movie> query = em.createQuery("SELECT m FROM Movie m WHERE m.title = :title", Movie.class);
+		TypedQuery<Movie> query = em.createNamedQuery("Movie.byTitle", Movie.class);
 		query.setParameter("title", title);
 		return query.getResultList();
 	}

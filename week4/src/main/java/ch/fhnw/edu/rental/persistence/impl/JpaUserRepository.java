@@ -3,6 +3,8 @@ package ch.fhnw.edu.rental.persistence.impl;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 
@@ -24,7 +26,7 @@ public class JpaUserRepository implements UserRepository {
 
 	@Override
 	public List<User> findAll() {
-		TypedQuery<User> query = em.createQuery("SELECT u FROM User u", User.class);
+		TypedQuery<User> query = em.createNamedQuery("User.all", User.class);
 		return query.getResultList();
 	}
 
@@ -50,26 +52,26 @@ public class JpaUserRepository implements UserRepository {
 
 	@Override
 	public long count() {
-		return em.createQuery("SELECT COUNT(u) FROM User u", Long.class).getSingleResult();
+		return em.createNamedQuery("User.count", Long.class).getSingleResult();
 	}
 
 	@Override
 	public List<User> findByLastName(String lastName) {
-		TypedQuery<User> query = em.createQuery("SELECT u FROM User u WHERE u.lastName = :lastName", User.class);
+		TypedQuery<User> query = em.createNamedQuery("User.byLastname", User.class);
 		query.setParameter("lastName", lastName);
 		return query.getResultList();
 	}
 
 	@Override
 	public List<User> findByFirstName(String firstName) {
-		TypedQuery<User> query = em.createQuery("SELECT u FROM User u WHERE u.firstName = :firstName", User.class);
+		TypedQuery<User> query = em.createNamedQuery("User.byFirstname", User.class);
 		query.setParameter("firstName", firstName);
 		return query.getResultList();
 	}
 
 	@Override
 	public List<User> findByEmail(String email) {
-		TypedQuery<User> query = em.createQuery("SELECT u FROM User u WHERE u.email = :email", User.class);
+		TypedQuery<User> query = em.createNamedQuery("User.byMail", User.class);
 		query.setParameter("email", email);
 		return query.getResultList();
 	}}

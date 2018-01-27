@@ -3,13 +3,13 @@ package ch.fhnw.edu.rental.persistence.impl;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 
 import org.springframework.stereotype.Repository;
 
-import ch.fhnw.edu.rental.model.Movie;
-import ch.fhnw.edu.rental.model.PriceCategory;
 import ch.fhnw.edu.rental.model.Rental;
 import ch.fhnw.edu.rental.model.User;
 import ch.fhnw.edu.rental.persistence.RentalRepository;
@@ -27,7 +27,7 @@ public class JpaRentalRepository implements RentalRepository {
 
 	@Override
 	public List<Rental> findAll() {
-		TypedQuery<Rental> query = em.createQuery("SELECT r FROM Rental r", Rental.class);
+		TypedQuery<Rental> query = em.createNamedQuery("Rental.all", Rental.class);
 		return query.getResultList();
 	}
 
@@ -61,7 +61,7 @@ public class JpaRentalRepository implements RentalRepository {
 
 	@Override
 	public long count() {
-		return em.createQuery("SELECT COUNT(r) FROM Rental r", Long.class).getSingleResult();
+		return em.createNamedQuery("Rental.count", Long.class).getSingleResult();
 	}
 
 	@Override

@@ -10,11 +10,20 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
 @Table(name = "USERS")
+@NamedQueries({
+	@NamedQuery(name = "User.all", query = "SELECT u FROM User u"),
+	@NamedQuery(name = "User.count", query = "SELECT COUNT(u) FROM User u"),
+	@NamedQuery(name = "User.byLastname", query = "SELECT u FROM User u WHERE u.lastName = :lastName"),
+	@NamedQuery(name = "User.byFirstname", query = "SELECT u FROM User u WHERE u.firstName = :firstName"),
+	@NamedQuery(name = "User.byMail", query = "SELECT u FROM User u WHERE u.email = :email")
+})
 public class User {
 
 	@Id

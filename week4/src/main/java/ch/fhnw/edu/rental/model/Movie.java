@@ -8,6 +8,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -15,6 +17,11 @@ import javax.persistence.TemporalType;
 
 @Entity
 @Table(name = "MOVIES")
+@NamedQueries({
+	@NamedQuery(name = "Movie.all", query = "SELECT m FROM Movie m"),
+	@NamedQuery(name = "Movie.count", query = "SELECT COUNT(m) FROM Movie m"),
+	@NamedQuery(name = "Movie.byTitle", query = "SELECT m FROM Movie m WHERE m.title = :title")
+})
 public class Movie {
 
 	@Id
