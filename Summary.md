@@ -578,3 +578,36 @@ public UserDto getUserDataById(Long id) {
 	return mapper.userToUserDto(userRepo.findOne(id));
 }
 ```
+
+### JOOQ
+```Java
+@Autowired
+private DSLContextdsl;
+
+@Override
+public List<User> findAll() {
+	List<User> users = new ArrayList<>();
+	Result<Record> result = dsl.select().from(USERS).fetch();
+	for (Record r : result) { users.add(getUserEntity(r)); }
+	return users;
+}
+
+@Override
+public User save(User user) {
+	if(user.getId() == null) {
+		UsersRecorduserRecord= dsl.insertInto(USERS)
+		.set(USERS.USER_NAME, user.getLastName())
+		.set(USERS.USER_FIRSTNAME, user.getFirstName())
+		.set(USERS.USER_EMAIL, user.getEmail())
+		.returning(USERS.USER_ID)
+		.fetchOne();
+		user.setId(userRecord.getUserId());
+		} else {
+		dsl.update(MOVIES).set(USERS.USER_NAME, user.getLastName())
+		.set(USERS.USER_FIRSTNAME, user.getFirstName())
+		.set(USERS.USER_EMAIL, user.getEmail())
+		.where(MOVIES.MOVIE_ID.eq(user.getId()))
+		.execute();
+	} return user;
+}
+```
