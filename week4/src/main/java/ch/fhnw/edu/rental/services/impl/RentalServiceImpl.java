@@ -45,6 +45,8 @@ public class RentalServiceImpl implements RentalService {
 			throw new RuntimeException("'rental' parameter is not set!");
 		}
 
+		rental = rentalRepo.save(rental);
+		
 		rental.getUser().getRentals().remove(rental);
 		rental.getMovie().setRented(false);
 
