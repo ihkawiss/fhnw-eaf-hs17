@@ -86,7 +86,7 @@ public interface Repository<T, ID extends Serializable> {
 	T save(T t);	// used for create and update
 	void delete(ID id);
 	void delete(T entity);
-	booleanexists(ID id);
+	boolean exists(ID id);
 	long count();
 }
 ```
@@ -130,7 +130,7 @@ public class Movie {
 
 public class MovieRepository {
 	@PersistenceContext
-	private EntityManagerem;
+	private EntityManager em;
 	public void saveNewMovie(String title, Date date) {
 		Movie m = new Movie(title, date);
 		em.persist(m);
@@ -175,7 +175,7 @@ Folgend die wichtigsten Annotationen für Entitätsklassen im JPA/Hibernate Fram
 ```@Id``` = markiert Feld als PK  
 ```@GeneratedValue(strategy=GenerationType.IDENTITY)``` = definiert wie Id Wert generiert werden soll  
 ```@Column(name="MyColumn")``` = manuelle Definition des Spaltennamens  
-```@Basic``` = markiert Feld das persistiert werden soll  
+```@Basic``` = markiert Feld das persistiert werden soll, ermöglicht Fetchtype zu definieren
 ```@Enumerated``` = definiert wie Enumeration persistiert werden soll (EnumType.ORDINAL oder EnumType.STRING)  
 ```@Lob``` = markiert Feld als large object, also BLOB Feld  
 ```@Transient``` = Markiert Feld das nicht persistiert werden soll  
@@ -262,12 +262,13 @@ Um bei der Creteria API auf Strings verzichten zu können (oben ```m.get("title"
 @StaticMetamodel(Movie.class)
 public abstract class Movie_ {
 public static volatile SingularAttribute<Movie, Boolean> rented;
+public static volatile ListAttribute<User, Rental> rentals;
 ...
 cq.where(cb.equal(m.get(Movie_.title), title));
 ```
 **Inner Join mit Creteria API**
 ```Java
-CriteriaBuildercb= em.getCriteriaBuilder();
+CriteriaBuilder cb= em.getCriteriaBuilder();
 CriteriaQuery<Object[]> query= cb.createQuery(Object[].class);
 Root<User> user= query.from(User.class);
 Join<User, Rental> rental = user.join(User_.rentals);
@@ -547,7 +548,7 @@ public class UserDto implements Serializable{
 }
 
 // in repository
-public UserDtogetUserDataById(Long id) {
+public UserDto getUserDataById(Long id) {
 	TypedQuery<UserDTO> q = em.createNamedQuery("User.dataById", UserDTO.class);
 	q.setParameter("id", id);
 	UserDTO dto = q.getSingleResult();
@@ -582,7 +583,7 @@ public UserDto getUserDataById(Long id) {
 ### JOOQ
 ```Java
 @Autowired
-private DSLContextdsl;
+private DSLContext dsl;
 
 @Override
 public List<User> findAll() {
