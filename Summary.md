@@ -612,3 +612,54 @@ public User save(User user) {
 	} return user;
 }
 ```
+
+
+## Enterprise Architektur
+#### Transaktionen (R/W)
+Jede Transaktion ist in sich isoliert (ACID).  
+
+**Begriffe**
+- Logical Unit of Work (LUW)  
+Bezeichnet alle Arbeitsschritte die in einem Request erledigt werden müssen bevor eine Response generiert werden kann.
+- Transaktionsgrenzen  
+Ab hier können Transaktionen pro Request gestartet werden.
+- Rollback  
+Rückgängigmachen der LUW. **RuntimeException** triggert Rollback!  
+**TransactionOwner** (Starter der TX) muss Rollbackverhalten implementieren.
+
+**Phänomene**  
+- Dirty Read: Lesen von NON-COMMITED Werten einer anderen Transaktion.
+- Non-repeatable-Read: Lesen von COMMITED Werten einer anderen Transaktion.
+- Phantom Read: Lesen von neuen Daten (anz. Rows) aus einer anderen Transaktion.
+
+**Isolation Levels**  
+Default = Abhängig von darunterliegender DB Impl
+- Read Uncommitted (alles kann auftreten)
+- Read Committed (Non-repeatable-Read und Phantom Read)
+- Repeatable Read (nur Phantom Read)
+- Serializable (volle Isolation, schlechteste Performance)
+
+**Propagation**  
+Definiert wie eine Methode mittels Transaktionen ausgeführt wird.
+- Required DEFAULT (fortsetzen oder neu)
+- RequiresNew (immer neu)
+- Mandatory (fortsetzen sonst Exception)
+- Supports (fortsetzen oder ohne)
+- NotSupported (ohne)
+- Never (wenn eine aktiv => Exception)
+- Nested (geschachtelt)
+
+**Bespiel** auf Klasse oder Methode
+```Java
+@Transactional(propagation=Propagation.SUPPORTS)
+```
+
+### Transaktionsstrategie
+- Client kümmert sich **nie** um Transaktionen
+- Domain Service Methoden sind **Transaction Owner**
+ - Write: Standard ist REQUIRED
+ - Read: Standard ist SUPPORTS
+- Domain Entitäten kümmern sich **nie** um Transaktionen
+
+#### Micro Service
+In einem Micro Service sind die einzelenen Domain Services unabhängig vom Gesamtsystem und laufen in einem eigenen Prozess. Über eine Facade werden diese Services aufgerufen.
