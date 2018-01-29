@@ -663,3 +663,18 @@ Definiert wie eine Methode mittels Transaktionen ausgeführt wird.
 
 #### Micro Service
 In einem Micro Service sind die einzelenen Domain Services unabhängig vom Gesamtsystem und laufen in einem eigenen Prozess. Über eine Facade werden diese Services aufgerufen.
+https:
+
+**Architektur**:  
+![](https://github.com/ihkawiss/fhnw-eaf-hs17/raw/master/week7/service-architecture.PNG "Micro Service Architektur")
+
+## Spring MVC
+#### Front Controller
+Der Front Controller (``DispatcherServlet``) ist der erste Controller welcher eine Anfrage entgegen nimmt. Er ist für das richtige Dispatching der Anfrage an den jeweiligen Handler verantwortlich.
+
+Die Map der Handler wird über die Annotation ``@RequestMapping`` erstellt, welche auf den jeweiligen Klassen/Methoden definiert sind.
+
+#### Page Controller
+- POJO wird mittels``@RestController`` zu einem Page Controller
+- Mapping wird über ``@RequestMapping`` definiert
+- Methode wird über ``@RequestMapping`` definiert
