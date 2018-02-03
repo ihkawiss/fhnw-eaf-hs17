@@ -918,7 +918,7 @@ private Object[] arguments;
 }
 ```
 
-#### HTTP
+### HTTP
 - HttpInvoker (Binary mittels Java Serialization)
 - Hessian (Binary)
 
@@ -947,4 +947,85 @@ AccountService getHttpInvokerProxy(@Value("${web.host}") String host, @Value("${
 	// web.host=localhost
 	// web.port=8080
 }
+```
+
+### JMS (Java Message Service)
+#### Senden
+Die Unterstützung von JMS in Spring kann mit jener von JDBC verglichen werden.
+- JmsTemplate
+ - Senden von Nachrichten
+ - Nachrichten empfangen (synchron)
+- MessageListener
+ - Nachrichten empfangen (asynchron)
+
+```Java
+jmsTemplate.send(queue,
+	session -> session.createTextMessage("Hello World");
+);
+```
+
+#### Benutzen von MessageConverter
+Die Methoden ``convertAndSend()`` und ``receiveAndConvert()`` delegieren die Konvertierung an einen MessageConverter.
+```Java
+void convertAndSend(Object message)
+void convertAndSend(Destination destination, Object message)
+void convertAndSend(String destinationName, Object message)
+void convertAndSend(Object m, MessagePostProcessor p)
+void convertAndSend(Destination d, Object m, MessagePostProcessor p)
+void convertAndSend(String dname, Object m, MessagePostProcessor p)
+```
+
+#### MessagePostProcessor
+Möglichkeit eine Nachricht nach Verarbeitung zu manipulieren (header / properties)
+```Java
+public void sendWithConversion(JmsTemplate jmsTemplate) {
+	Map<String, Object> map = new HashMap<>();
+	map.put("Name", "Mark");
+	map.put("Age", new Integer(47));
+	jmsTemplate.convertAndSend("testQueue", map, message -> {
+		message.setIntProperty("AccountID", 1234);
+		message.setJMSCorrelationID("123-00001");
+		return message;
+	});
+}
+```
+#### Empfangen
+Synchrones verarbeiten von Nachrichten
+```Java
+Message receive()
+Message receive(Destination destination)
+Message receive(String destinationName)
+Object receiveAndConvert()
+Object receiveAndConvert(Destination destination)
+Object receiveAndConvert(String destinationName)
+```
+Asynchrones verarbeiten mit einem Listener
+```Java
+public interface MessageListener{
+	// IMPL muss thread-safe sein
+	void onMessage(Message message);
+}
+```
+
+#### Listener bekannt machen
+```Java
+@Bean
+public DefaultMessageListenerContainer messageListener(ConnectionFactory connectionFactory) {
+	DefaultMessageListenerContainer container = new DefaultMessageListenerContainer();
+	container.setConnectionFactory(connectionFactory);
+	container.setDestinationName(queue);
+	container.setMessageListener(consumer);
+	return container;
+}
+
+// Annotation-driven listener endpoint
+@JmsListener(destination = "ECHO")
+public void processAccount(String data) {
+	...
+}
+
+// Response managment
+@JmsListener(destination = "ECHO")
+@SendTo("DLQ")
+public AccountprocessAccount(Account data) { return data; }
 ```
