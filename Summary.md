@@ -1058,3 +1058,196 @@ public void processAccount(String data) {
 @SendTo("DLQ")
 public AccountprocessAccount(Account data) { return data; }
 ```
+
+### Websockets
+#### Konfiguration
+```Java
+@Configuration
+@EnableWebSocket
+public class EchoConfig implements WebSocketConfigurer {
+	@Autowired
+	private WebSocketHandler handler;
+	@Override
+	public void registerWebSocketHandlers(
+	WebSocketHandlerRegistry registry) {
+		registry.addHandler(handler, "/echo").setAllowedOrigins("*");
+	}
+}
+```
+
+#### Handler
+```Java
+@Component
+public class EchoHandler extends TextWebSocketHandler {
+	@Override
+	protected void handleTextMessage(WebSocketSession session, TextMessage message) throws IOException {
+		String msg = String.format(
+		"Echo: %s [%s]", message.getPayload(), new Date());
+		session.sendMessage(new TextMessage(msg));
+	}
+}
+```
+
+#### Client
+```Java
+StandardWebSocketClientclient= newStandardWebSocketClient();
+ListenableFuture<WebSocketSession> future = client.doHandshake(new TextWebSocketHandler() {
+
+	@Override
+	protected void handleTextMessage(WebSocketSessionsession, TextMessagemessage) throws IOException{
+			System.out.println(">> " + message.getPayload());
+			cdl.countDown();
+		}
+	},
+	new WebSocketHttpHeaders(),
+	new URI("ws://localhost:8080/echo"));
+
+WebSocketSessionsession= future.get();
+WebSocketMessage<String> message= newTextMessage("Hello");
+session.sendMessage(message);
+cdl.await();
+```
+
+### STOMP
+Simple Text Oriented Messaging Protocol zur Nachricht-Orientierten Kommunikation.
+#### Kommandos
+- CONNECT
+- SEND
+- SUBSCRIBE
+- UNSUBSCRIBE
+- MESSAGE
+
+#### API
+- Message: message with headers and payload
+- MessageHandler: interface for handling messages
+- MessageChannel: interface for sending messages
+
+#### Konfiguration
+```Java
+@Configuration
+@EnableWebSocketMessageBroker
+public class StompConfig extends AbstractWebSocketMessageBrokerConfigurer {
+@Override
+public void registerStompEndpoints(StompEndpointRegistry reg) {
+	reg.addEndpoint("/stomp").withSockJS(); // => used by stomp clients
+}
+@Override // configuration of STOMP destinations
+public void configureMessageBroker(MessageBrokerRegistry cfg) {
+	cfg.enableSimpleBroker("/topic");
+	// enables a simple memory-based message broker prefixed with "/topic".
+	cfg.setApplicationDestinationPrefixes("/app");
+	// designates the "/app" prefix for messages that are bound for
+	} // @MessageMapping-annotated methods.
+}
+```
+#### Senden von Nachrichten
+```Java
+public class Client2 {
+	private static CountDownLatch cdl = new CountDownLatch(1);
+
+	public static void main(String[] args) throws Exception {
+		List<Transport> transports = new ArrayList<>(2);
+		transports.add(new WebSocketTransport(new StandardWebSocketClient()));
+		transports.add(new RestTemplateXhrTransport());
+
+		WebSocketClient webSocketClient = new SockJsClient(transports);
+		WebSocketStompClient stompClient = new WebSocketStompClient(webSocketClient);
+		stompClient.setMessageConverter(new StringMessageConverter());
+		// stompClient.setTaskScheduler(taskScheduler); // for heartbeats
+
+		String url = "ws://localhost:8080/stomp";
+		StompSessionHandler sessionHandler = new MyStompSessionHandler();
+		stompClient.connect(url, sessionHandler);
+		cdl.await();
+	}
+
+	private static class MyStompSessionHandler extends StompSessionHandlerAdapter {
+	    @Override
+	    public void afterConnected(StompSession session, StompHeaders connectedHeaders) {
+	        System.out.println("connected");
+					session.send("/topic/message", "message1");
+	        session.send("/app/hello", "message2");
+	        session.subscribe("/topic/message", new StompFrameHandler() {
+				@Override
+				public Type getPayloadType(StompHeaders headers) {
+					return String.class;
+				}
+				@Override
+				public void handleFrame(StompHeaders headers, Object payload) {
+					System.out.println(payload);
+				}});
+	    }
+	}
+}
+```
+#### STOMP Rest Controller
+```Java
+@RestController
+public class StompRestController {
+	@Autowired
+	Sender sender;
+
+	@RequestMapping("/send/{topicName}")
+	public String sender(@PathVariable String topicName, @RequestParam String message) {
+		sender.sendMessageToTopic(topicName, message);
+		return "OK-Sent";
+	}
+}
+```
+
+#### STOMP Controller
+```Java
+@Controller
+public class StompController {
+    @MessageMapping("/hello")
+    @SendTo("/topic/message")
+    public String greeting(String message) throws Exception {
+    	System.out.println(Thread.currentThread());
+        Thread.sleep(1000); // simulated delay
+        return "Hello, " + message + "!";
+    }
+}
+```
+
+#### Manual Stomp Messages
+```Java
+public class Client3 {
+	private static CountDownLatch cdl = new CountDownLatch(1);
+
+	public static void main(String[] args) throws Exception {
+		WebSocketClient webSocketClient = new StandardWebSocketClient();
+		webSocketClient.doHandshake(new Handler(), "ws://localhost:8080/stomp-nojs");
+		cdl.await();
+	}
+
+	static CharSequence getConnectMessage() {
+		return "CONNECT\r\n" +
+				"accept-version:1.0,1.1\r\n" +
+				"host:stomp.github.org\r\n" +
+				"^@";
+	}
+
+	static CharSequence getSubscribeMessage() {
+		return "SUBSCRIBE\r\n" +
+				"id:0\r\n" +
+				"destination:/queue/a\r\n" +
+				"ack:client\r\n" +
+				"^@";
+	}
+
+	static class Handler extends TextWebSocketHandler {
+		@Override
+		protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+			System.out.println("handleTextMessage " + message.getPayload());
+			if(message.getPayload().startsWith("CONNECTED")) {
+				session.sendMessage(new TextMessage(getSubscribeMessage()));
+			}
+		}
+		@Override
+		public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+			System.out.println("connected");
+			session.sendMessage(new TextMessage(getConnectMessage()));
+		}
+	}
+}
+```
