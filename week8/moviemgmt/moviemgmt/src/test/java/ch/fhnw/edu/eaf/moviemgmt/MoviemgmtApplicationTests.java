@@ -1,4 +1,4 @@
-package ch.fhnw.edu.eaf.usermgmt;
+package ch.fhnw.edu.eaf.moviemgmt;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -7,7 +7,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class UsermgmtApplicationTests {
+public class MoviemgmtApplicationTests {
 
 	@Test
 	public void contextLoads() {
