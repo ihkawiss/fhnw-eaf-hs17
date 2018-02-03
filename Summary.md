@@ -760,6 +760,35 @@ public class UserControllerTest {
 
 		verify(userRepositoryMock, times(1)).findOne(1L);
 }
+
+@Test
+public void saveMovieTest() throws Exception {
+	Movie movie = new Movie("Test",now, new PriceCategoryRegular());
+	movie.setId(4L);
+
+	when(movieRepositoryMock.save(any(Movie.class))).thenReturn(movie);
+
+	String json = createMovieInJson(movie.getTitle(),movie.getReleaseDate(), movie.getPriceCategory());
+	System.out.println(json);
+	mockMvc.perform(post("/movies")
+			.header("Accept", "application/json")
+			.contentType(MediaType.APPLICATION_JSON)
+			.content(json))
+			.andExpect(status().isCreated())
+			.andExpect(jsonPath("$.id", equalTo(4)));
+	}
+
+private static String createMovieInJson (String title, Date date, PriceCategory priceCategory) {
+	return "{ \"title\": \"" + title + "\", " +
+			"\"releaseDate\":" + date.getTime() + "," +
+			"\"priceCategory\":" + "{" +
+				"\"@type\": \"Regular\"," +
+				"\"id\": 3," +
+				"\"name\": \"Regular\""+
+				"}" +
+			"}";
+}
+
 ```
 
 ### Service Registration & Discovery
