@@ -819,3 +819,25 @@ discoveryClient.getInstances("bookmark-service").forEach((ServiceInstance s) -> 
   System.out.println(ToStringBuilder.reflectionToString(s));
 });
 ```
+### Caching
+Damit ein Service Entitäten anderer Dienste auflösen kann sind HTTP-Requests notwendig. Diese können teuer werden, falls z.B. über mehrere Servicegrenzen hinweg eine Abfrage ausgeführt wird. Um teure Requests einzusparen wird Caching eingesetzt.
+#### Annotationen
+- ``@EnableCaching``
+	- aktiviert Caching
+	-  muss in einer ``@Configuration`` Klasse gesetzt werden  
+- ``@Cacheable(value = "NAME_OF_CACHE")``
+	- auf Methode (oder Klasse) anwendbar
+	- Caching basierend auf input-Parameter (im Cache: response aus Cache, sonst ausführen und Cachen)
+- ``@CacheEvict(value = "NAME_OF_CACHE")``
+	- auf Methode (oder Klasse) anwendbar
+	- beim Aufruf der Methode wird der Eintrag aus dem Cache entfernt, welcher dem entsprechenden Key entspricht
+- ``@CachePut(value = "NAME_OF_CACHE")``
+ - analog zu @Cacheable, Methode wird aber immer ausgeführt
+
+#### Key
+Standardmässig wird der Key automatisch generiert, aus der Kombination aller Parameter.  
+Manuelle definition des Keys möglich mittels:
+```Java
+@Cacheable(value = "rentals", key = "#id")
+public ResponseEntity<Rental> update(@RequestBody Rental newRental, @PathVariable Long id)
+```
