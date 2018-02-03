@@ -733,3 +733,89 @@ public class UserDTO {
 	@JsonProperty("email") private String email;
 }
 ```
+
+### Testing Microservices
+```Java
+@RunWith(SpringRunner.class)
+@WebMvcTest(UserController.class)
+@TestPropertySource(locations = "classpath:test.properties")
+public class UserControllerTest {
+	@Autowired private MockMvc mockMvc;
+	@MockBean private UserRepository userRepositoryMock;
+	@Before public void setUp() { Mockito.reset(userRepositoryMock); }
+	@Test
+	public void findById_UserFound_ShouldReturnFound() throws Exception {
+		User user = new UserBuilder("Tester1", "Hugo").id(new Long(1))
+		.email("hugo.tester1@xyz.ch").build();
+		when(userRepositoryMock.findOne(1L)).thenReturn(user);
+
+		mockMvc.perform(
+			get("/users/{id}", 1L).header("Accept", "application/json"))
+			// .andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.id", equalTo(1)))
+			.andExpect(jsonPath("$.lastName", equalTo("Tester1")))
+			.andExpect(jsonPath("$.firstName", equalTo("Hugo")))
+			.andExpect(jsonPath("$.email", equalTo("hugo.tester1@xyz.ch")));
+
+		verify(userRepositoryMock, times(1)).findOne(1L);
+}
+```
+
+### Service Registration & Discovery
+Solange ein Service andere Dienste nur mittels fest definierten Namen anspricht, ist dieses Konstrukt eingeschränkt bzw. nicht flexibel genug. Ähnlich die bei DNS (Hostname <=> IP) sollen die Endpunkte dynamisch aufgelöst werden können, so dass Anpassungen im Service entfallen.
+
+#### Eureka & Spring
+```Java
+// ------------- Server / Registry -------------
+@EnableEurekaServer
+@SpringBootApplication
+public class EurekaServiceApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(EurekaServiceApplication.class, args);
+    }
+}
+
+// Config File
+server.port=8761
+// Do not register itself
+eureka.client.register-with-eureka=false
+eureka.client.fetch-registry=false
+// No cluster
+eureka.server.enable-self-preservation=false
+#eureka.instance.lease-expiration-duration-in-seconds=5
+#eureka.instance.lease-renewal-interval-in-seconds=2
+
+
+// ------------- Client -------------
+@SpringBootApplication
+@EnableDiscoveryClient
+//@EnableScheduling
+@EnableCaching
+public class RentalmgmtApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(RentalmgmtApplication.class, args);
+    }
+    @LoadBalanced
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+}
+
+@Value(value = "${microservice.moviemagagement:moviemanagement}")
+private String movieService;
+
+@Autowired
+private RestTemplate restTemplate;
+
+String url = "http://" + movieService + "/movies/" + rental.getMovieId();
+MovieDTO dto = restTemplate.getForObject(url, MovieDTO.class);
+
+// aus der netflix doku
+@Autowired
+private DiscoveryClient discoveryClient;
+discoveryClient.getInstances("bookmark-service").forEach((ServiceInstance s) -> {
+  System.out.println(ToStringBuilder.reflectionToString(s));
+});
+```
