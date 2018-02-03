@@ -678,3 +678,20 @@ Die Map der Handler wird über die Annotation ``@RequestMapping`` erstellt, welc
 - POJO wird mittels``@RestController`` zu einem Page Controller
 - Mapping wird über ``@RequestMapping`` definiert
 - Methode wird über ``@RequestMapping`` definiert
+
+```Java
+@RestController
+@RequestMapping("/users")
+public class UserController {
+	@RequestMapping(method = RequestMethod.GET)
+	public ResponseEntity<List<User>> findAll() {
+		...
+		new ResponseEntity<List<User>>(users, HttpStatus.OK);
+	}
+	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
+	public ResponseEntity<User> findById(@PathVariable Long id) {
+		...
+		return new ResponseEntity<User>(user, HttpStatus.OK);
+	}
+}
+```
