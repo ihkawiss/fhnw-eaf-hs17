@@ -668,7 +668,7 @@ https:
 **Architektur**:  
 ![](https://github.com/ihkawiss/fhnw-eaf-hs17/raw/master/week7/service-architecture.PNG "Micro Service Architektur")
 
-## Spring MVC
+### Spring MVC
 #### Front Controller
 Der Front Controller (``DispatcherServlet``) ist der erste Controller welcher eine Anfrage entgegen nimmt. Er ist für das richtige Dispatching der Anfrage an den jeweiligen Handler verantwortlich.
 
@@ -693,5 +693,43 @@ public class UserController {
 		...
 		return new ResponseEntity<User>(user, HttpStatus.OK);
 	}
+}
+```
+
+### RestTemplate
+Ein Microservice soll möglichst autark sein, also nicht abhäng von weiteren Services gebaut werden. Um jedoch ein gewisses Level an Usability zu erreichen, können Services untereinander kommunizieren um z.B. Entitäten auflösen und selbst serialisieren zu können. Hierzu können RestTemplates verwendet werden, welche die Kommunikation mittels HTTP/Rest vereinfacht.
+
+#### Konfiguration
+```Java
+// variante 1 - in einer @Configuration Klasse
+@Bean
+public RestTemplate restTemplate() {
+	return new RestTemplate();
+}
+
+// variante 2 - über DI/Autowired
+@Autowired RestTemplate restTemplate;
+UserDTO dto = restTemplate.getForObject(url, UserDTO.class);
+```
+
+#### Verwendung
+```Java
+// get
+Foo foo = restTemplate.getForObject(fooResourceUrl + "/1", Foo.class);
+
+// create
+HttpEntity<Foo> request = new HttpEntity<>(new Foo("bar"));
+Foo foo = restTemplate.postForObject(fooResourceUrl, request, Foo.class);
+```
+
+#### DTOs zu JSON (Jackson/Lombock)
+```Java
+@JsonAutoDetect
+public class UserDTO {
+	// jackson (nicht der michi) - generiert getter/setter methoden für properties
+	@JsonProperty("id") private Long id;
+	@JsonProperty("lastName") private String lastName;
+	@JsonProperty("firstName") private String firstName;
+	@JsonProperty("email") private String email;
 }
 ```
