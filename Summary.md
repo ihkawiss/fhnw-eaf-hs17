@@ -917,3 +917,34 @@ private Object[] arguments;
 	}
 }
 ```
+
+#### HTTP
+- HttpInvoker (Binary mittels Java Serialization)
+- Hessian (Binary)
+
+#### Endpunkt definieren
+```Java
+@Bean(name = "/HttpInvoke")
+public HttpInvokerServiceExporter httpInvokerServiceExporter(AccountService service) {
+	HttpInvokerServiceExporter exporter = new HttpInvokerServiceExporter();
+	exporter.setServiceInterface(AccountService.class);
+	exporter.setService(service);
+	return exporter;
+}
+```
+
+#### Client-Proxy HttpInvoker
+```Java
+@Bean
+AccountService getHttpInvokerProxy(@Value("${web.host}") String host, @Value("${web.port}") intport) {
+	HttpInvokerProxyFactoryBean proxy = new HttpInvokerProxyFactoryBean();
+	String url= String.format("http://%s:%s/lab-remoting/HttpInvoke", host,port);
+	proxy.setServiceUrl(url);
+	proxy.setServiceInterface(AccountService.class);
+	proxy.afterPropertiesSet();
+	return (AccountService)proxy.getObject();
+
+	// web.host=localhost
+	// web.port=8080
+}
+```
