@@ -841,3 +841,79 @@ Manuelle definition des Keys möglich mittels:
 @Cacheable(value = "rentals", key = "#id")
 public ResponseEntity<Rental> update(@RequestBody Rental newRental, @PathVariable Long id)
 ```
+
+### Remoting in Spring
+#### RMI (Remote Method Invocation)
+- Generische *unchecked* RemoteAccessException
+- Klassen für zugriff und export von Services
+ - RmiServiceExporter
+ - RmiProxyFactoryBean
+ - oder plain RMI (traditional)
+
+#### Export eines Services
+Das angegebene Interface, ein POJO (welches nicht von *java.rmi.Remote* erben muss), wird exportiert. RmiRegistry wird wenn nötig gestartet.
+```Java
+// shared interface
+public interface AccountService{
+	void insertAccount(Account acc);
+	List<Account> getAccounts(String name);
+}
+
+
+@Bean
+public RmiServiceExporter getExporter(AccountServiceservice) {
+	RmiServiceExporter exporter = new RmiServiceExporter();
+	exporter.setServiceName(serviceName);
+	exporter.setService(service);
+	// setRegistryPort(intregistryPort) default: 1099
+	// setRegistryHost(String registryHost) default: localhost
+	// setServicePort(intservicePort) default: 0
+	exporter.setServiceInterface(AccountService.class);
+	return exporter;
+}
+```
+#### Benutzen eines Services
+```Java
+@Bean
+AccountService getProxy() {
+	RmiProxyFactoryBeanproxy = new RmiProxyFactoryBean();
+	String url= String.format("rmi://%s:%s/%s", host, port, serviceName);
+	proxy.setServiceUrl(url);
+	proxy.setServiceInterface(AccountService.class);
+	proxy.afterPropertiesSet();
+	return (AccountService)proxy.getObject();
+}
+
+getProxy().insertAccount(new Account("RMI Account"));
+```
+
+#### Exceptions
+- RemoteAccessException (unpack via ``e.getCause()``)
+ - RemoteConnectFailureException = no conection available
+ - RemoveInvocationFailureException = target method failed
+ - RemoteLookupFailureException = lookup failed
+ - RemoteProxyFailureException = client side proxy failed
+
+#### Adapter & Proxy
+- Adapter auf Serverseite, leitet Anfragen an Objekte weiter
+- Proxy auf Clientseite (RemoteInvocationHandler]), leitet Anfragen an RMI weiter.
+
+```Java
+// The adapter which is registered by Spring in the RMI-registry implements this interface
+public interface RmiInvocationHandler extends Remote {
+	public String getTargetInterfaceName() throws RemoteException;
+	public Object invoke(RemoteInvocationinvocation) throws RemoteException, NoSuchMethodException, IllegalAccessException, InvocationTargetException;
+}
+
+// Created on the client, executed on the server by the adapter
+public class RemoteInvocation implements Serializable{
+private String methodName;
+private Class<?>[] parameterTypes;
+private Object[] arguments;
+	// constructors, getters & setters ommitted
+	public Object invoke(Object targetObject) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+		Method method= targetObject.getClass().getMethod(this.methodName, this.parameterTypes);
+		return method.invoke(targetObject, this.arguments);
+	}
+}
+```
