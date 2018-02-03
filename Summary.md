@@ -1220,6 +1220,26 @@ public class Client3 {
 		cdl.await();
 	}
 
+/*
+	COMMAND
+	header1:value1
+	header2:value2
+	Body^@
+
+	SEND
+	destination:/queue/a
+	content-type:text/plain
+	hello queue a
+	^@
+
+	MESSAGE
+	subscription:0
+	message-id:007
+	destination:/queue/a
+	content-type:text/plain
+	hello queue a^@
+*/
+
 	static CharSequence getConnectMessage() {
 		return "CONNECT\r\n" +
 				"accept-version:1.0,1.1\r\n" +
@@ -1250,4 +1270,106 @@ public class Client3 {
 		}
 	}
 }
+```
+
+## Aspect Oriented Programming (AOP)
+#### Cross-Cutting Concern
+Dieser Begriff bezeichnet wiederkehrende Belange welche nicht einfach modularisiert werden können und meist nichtfunktionale Anforderungen darstellen. Mittels AOP können diese zentral definiert und an der richtigen Stelle automatisch eingewoben werden. Typische Beispiele: Transaktionsverwaltung, Auditfähigkeit oder Tracing.
+
+#### Begriffe
+- Aspect  
+	Die Modularisierung eines Cross-Cutting Concern (Kombination aus Advice und Pointcut).
+- Join Point  
+	Bestimmter Punkt in der Ausführung einer Anwendung.
+- Advice  
+	Aktion an einem Join Point
+- Pointcut  
+	Set von Join Points wo ein Advice angewendet werden soll
+- Weaving  
+	Das Zusammenführen von AOP Code und OOP Code zu einer Modifizierten Klasse. Assembling aspects into advised objects.
+
+#### AOP Aufruf
+1. Der aufrufende Code ruft ein POJO auf, erhält aber einen Proxy.
+2. Der Proxy fängt den Request ab und kann weiteren Code ausführen (Advices).
+3. Der Proxy delegiert den Request weiter zum eigentlichen Ziel.
+
+#### Spring Bean / AspectJ
+```Java
+@Aspect // declares bean as aspect
+@Component	// declares pojo as bean
+public class TracingAnnotations {
+	// @Before declares the advice type
+	// expression defines the pointcut
+	@Before("execution(* edu.GreetingService.say*())")
+	public void trace() {
+		// do something
+	}
+}
+```
+#### AspectJ Advices
+- ``@Before`` Wird vor dem Pointcut ausgeführt, kann Ausführung nicht aufhalten (ausser Exception)
+- ``@AfterRunning`` Wird nach dem Pointcut ausgeführt, z.B. nach return einer Methode.
+- ``@AfterThrowing`` Wird nach dem Werfen einer Exception ausgeführt.
+- ``@After`` / ``@AfterFinally`` Egal wie der Pointcut beendet wurde (mit und ohne Exception)
+- ``@Around`` Kann vor und nach Ausführung des Pointcut Code ausführen sowie Target-Result manipulieren.
+
+```Java
+@Around("...")
+public Object validate(ProceedingJoinPoint pjp, ...) throws Throwable {
+	// logic before proceeding
+	Object o = pjp.proceed();
+	// logic after proceeding
+	return o;
+}
+```
+#### Pointcut Expressions
+- **execution**  
+	method execution
+- **execution**  
+	for matching method execution join points, this is the primary pointcut designator you will use when working with Spring AOP
+- **within**  
+	limits matching to join points within certain types (simply the execution of a method declared within a matching type when using Spring AOP)
+- **this**  
+	limits matching to join points (the execution of methods when using Spring AOP) where the bean reference (Spring AOP proxy) is an instance of the given type
+- **target**  
+	limits matching to join points (the execution of methods when using Spring AOP) where the target object (application object being proxied) is an instance of the given type
+- **args**  
+	limits matching to join points (the execution of methods when using Spring AOP) where the arguments are instances of the given types
+- **@target**  
+	limits matching to join points (the execution of methods when using Spring AOP) where the class of the executing object has an annotation of the given type
+- **@args**  
+	limits matching to join points (the execution of methods when using Spring AOP) where the runtime type of the actual arguments passed have annotations of the given type(s)
+- **@within**  
+	limits matching to join points within types that have the given annotation (the execution of methods declared in types with the given annotation when using Spring AOP)
+- **@annotation**  
+	limits matching to join points where the subject of the join point (method being executed in Spring AOP) has the given annotation
+
+#### Pattern
+- ? steht für optional
+- \* Wildcard für alle zeichen ausser '.'
+- .. alle Zeichen die mit einem Punkt starten und enden (subpackages)
+- pattern-param:  
+	- () beschreibt Methode ohne Parameter
+	- (..) beliebig viele Parameter
+
+```Java
+execution(
+	modifiers-pattern? ret-type-pattern declaring-type-pattern?name-pattern(param-pattern) throws-pattern?
+)
+```
+
+#### Zugriff auf Parameter
+```Java
+@Before("execution(* edu.GreetingService.say*(..)) && args(message)")
+public void trace(String message) { // parameter name muss identisch sein!
+	// do something with the 'message'
+}
+
+@AfterReturning(
+pointcut = "execution(* edu.GreetingService.say*(..))", returning = "message")
+public void trace(String message) { ... } // parameter name muss identisch sein!
+
+@AfterThrowing(
+pointcut = "execution(* edu.GreetingService.say*(..))", throwing = "error")
+public void trace(Throwable error) { ... } // parameter name muss identisch sein!
 ```
