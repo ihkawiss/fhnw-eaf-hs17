@@ -1304,6 +1304,38 @@ public class TracingAnnotations {
 	public void trace() {
 		// do something
 	}
+
+	@Before("execution(* findAll(..))")
+	public void logFindAllBefore(JoinPoint jp) {
+		log.debug("Called logFindAllBefore() before calling " + jp.getSignature());
+	}
+
+	//	 @Around("within(*..eaf..*.*)")
+	@Around("execution(* *..eaf..*.*(..))")
+	public Object traceService(ProceedingJoinPoint pjp) throws Throwable {
+		log.debug("Calling Service in " + pjp.getSignature());
+		Object o = pjp.proceed();
+		log.debug("Returning from Service called in " + pjp.getSignature());
+		return o;
+	}
+
+	//	@Before("execution(* *..rentalmgmt..*Controller.*(..)) && args(param)")
+	//	@Before("@within(org.springframework.web.bind.annotation.RestController) && args(param)")
+		/*
+		 * ATTENTION: by using @target spring aop will created a proxy for each spring bean to be able to weave the advice during runtime.
+		 * This will generate an exception, because the application has not access to all classes (final classes!).
+		 * To prevent this, the pointcut has to have a stricter description e.g. of the package. Use view "AOP Event Trace" to see the matchings.
+		 */
+	@Before("@target(org.springframework.web.bind.annotation.RestController) && args(param) && execution(* *..rentalmgmt..*(..))")
+	public void logCallWithLongParameter(JoinPoint jp, Long param) {
+		log.debug("Calling " + jp.getSignature() + " with parameter of type " + param.getClass().getSimpleName());
+	}
+
+	@AfterReturning(pointcut = "execution(* findById(..))", returning = "response")
+	public void logReturningOfRental(ResponseEntity<RentalDTO> response) {
+		RentalDTO rental = response.getBody();
+		log.debug("Successfully returned rental[" + rental.getId() + "]");
+	}
 }
 ```
 #### AspectJ Advices
